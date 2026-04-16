@@ -1,0 +1,301 @@
+item_id,category,tags,description
+activity_0,Mindfulness,"stress relief, calm",Mindfulness activity focused on stress relief and calm.
+activity_1,Cardio,"HIIT, aerobic",Cardio activity focused on HIIT and aerobic.
+activity_2,Mindfulness,"calm, awareness",Mindfulness activity focused on calm and awareness.
+activity_3,Mindfulness,"stress relief, awareness",Mindfulness activity focused on stress relief and awareness.
+activity_4,Nutrition,"diet, healthy eating",Nutrition activity focused on diet and healthy eating.
+activity_5,Nutrition,"diet, meal plan",Nutrition activity focused on diet and meal plan.
+activity_6,Meditation,"mind, relax",Meditation activity focused on mind and relax.
+activity_7,Strength,"muscle, training",Strength activity focused on muscle and training.
+activity_8,Meditation,"mind, relax",Meditation activity focused on mind and relax.
+activity_9,Nutrition,"healthy eating, meal plan",Nutrition activity focused on healthy eating and meal plan.
+activity_10,Cardio,"HIIT, endurance",Cardio activity focused on HIIT and endurance.
+activity_11,Strength,"weights, muscle",Strength activity focused on weights and muscle.
+activity_12,Sleep,"rest, sleep hygiene",Sleep activity focused on rest and sleep hygiene.
+activity_13,Cardio,"endurance, HIIT",Cardio activity focused on endurance and HIIT.
+activity_14,Yoga,"breathing, flexibility",Yoga activity focused on breathing and flexibility.
+activity_15,Cardio,"HIIT, endurance",Cardio activity focused on HIIT and endurance.
+activity_16,Yoga,"flexibility, breathing",Yoga activity focused on flexibility and breathing.
+activity_17,Meditation,"relax, focus",Meditation activity focused on relax and focus.
+activity_18,Sleep,"rest, relaxation",Sleep activity focused on rest and relaxation.
+activity_19,Yoga,"balance, flexibility",Yoga activity focused on balance and flexibility.
+activity_20,Strength,"weights, muscle",Strength activity focused on weights and muscle.
+activity_21,Mindfulness,"calm, stress relief",Mindfulness activity focused on calm and stress relief.
+activity_22,Mindfulness,"awareness, stress relief",Mindfulness activity focused on awareness and stress relief.
+activity_23,Yoga,"flexibility, balance",Yoga activity focused on flexibility and balance.
+activity_24,Meditation,"mind, relax",Meditation activity focused on mind and relax.
+activity_25,Sleep,"rest, relaxation",Sleep activity focused on rest and relaxation.
+activity_26,Meditation,"relax, mind",Meditation activity focused on relax and mind.
+activity_27,Mindfulness,"awareness, calm",Mindfulness activity focused on awareness and calm.
+activity_28,Meditation,"mind, relax",Meditation activity focused on mind and relax.
+activity_29,Sleep,"relaxation, rest",Sleep activity focused on relaxation and rest.
+activity_30,Mindfulness,"calm, awareness",Mindfulness activity focused on calm and awareness.
+activity_31,Meditation,"relax, focus",Meditation activity focused on relax and focus.
+activity_32,Nutrition,"meal plan, healthy eating",Nutrition activity focused on meal plan and healthy eating.
+activity_33,Mindfulness,"calm, stress relief",Mindfulness activity focused on calm and stress relief.
+activity_34,Strength,"training, muscle",Strength activity focused on training and muscle.
+activity_35,Meditation,"focus, relax",Meditation activity focused on focus and relax.
+activity_36,Nutrition,"healthy eating, diet",Nutrition activity focused on healthy eating and diet.
+activity_37,Yoga,"breathing, balance",Yoga activity focused on breathing and balance.
+activity_38,Yoga,"balance, breathing",Yoga activity focused on balance and breathing.
+activity_39,Mindfulness,"stress relief, awareness",Mindfulness activity focused on stress relief and awareness.
+activity_40,Yoga,"breathing, flexibility",Yoga activity focused on breathing and flexibility.
+activity_41,Yoga,"breathing, flexibility",Yoga activity focused on breathing and flexibility.
+activity_42,Strength,"weights, muscle",Strength activity focused on weights and muscle.
+activity_43,Yoga,"breathing, flexibility",Yoga activity focused on breathing and flexibility.
+activity_44,Meditation,"relax, mind",Meditation activity focused on relax and mind.
+activity_45,Mindfulness,"awareness, stress relief",Mindfulness activity focused on awareness and stress relief.
+activity_46,Nutrition,"diet, healthy eating",Nutrition activity focused on diet and healthy eating.
+activity_47,Sleep,"sleep hygiene, rest",Sleep activity focused on sleep hygiene and rest.
+activity_48,Yoga,"breathing, flexibility",Yoga activity focused on breathing and flexibility.
+activity_49,Mindfulness,"calm, awareness",Mindfulness activity focused on calm and awareness.
+activity_50,Yoga,"balance, breathing",Yoga activity focused on balance and breathing.
+activity_51,Mindfulness,"awareness, stress relief",Mindfulness activity focused on awareness and stress relief.
+activity_52,Mindfulness,"stress relief, awareness",Mindfulness activity focused on stress relief and awareness.
+activity_53,Mindfulness,"awareness, stress relief",Mindfulness activity focused on awareness and stress relief.
+activity_54,Strength,"muscle, training",Strength activity focused on muscle and training.
+activity_55,Mindfulness,"stress relief, awareness",Mindfulness activity focused on stress relief and awareness.
+activity_56,Meditation,"relax, focus",Meditation activity focused on relax and focus.
+activity_57,Meditation,"relax, mind",Meditation activity focused on relax and mind.
+activity_58,Mindfulness,"stress relief, awareness",Mindfulness activity focused on stress relief and awareness.
+activity_59,Mindfulness,"stress relief, awareness",Mindfulness activity focused on stress relief and awareness.
+activity_60,Meditation,"relax, focus",Meditation activity focused on relax and focus.
+activity_61,Mindfulness,"stress relief, awareness",Mindfulness activity focused on stress relief and awareness.
+activity_62,Sleep,"rest, relaxation",Sleep activity focused on rest and relaxation.
+activity_63,Nutrition,"meal plan, diet",Nutrition activity focused on meal plan and diet.
+activity_64,Nutrition,"diet, meal plan",Nutrition activity focused on diet and meal plan.
+activity_65,Meditation,"mind, relax",Meditation activity focused on mind and relax.
+activity_66,Cardio,"aerobic, endurance",Cardio activity focused on aerobic and endurance.
+activity_67,Meditation,"focus, relax",Meditation activity focused on focus and relax.
+activity_68,Sleep,"sleep hygiene, relaxation",Sleep activity focused on sleep hygiene and relaxation.
+activity_69,Yoga,"flexibility, breathing",Yoga activity focused on flexibility and breathing.
+activity_70,Yoga,"breathing, balance",Yoga activity focused on breathing and balance.
+activity_71,Cardio,"endurance, HIIT",Cardio activity focused on endurance and HIIT.
+activity_72,Cardio,"aerobic, HIIT",Cardio activity focused on aerobic and HIIT.
+activity_73,Nutrition,"healthy eating, meal plan",Nutrition activity focused on healthy eating and meal plan.
+activity_74,Strength,"muscle, weights",Strength activity focused on muscle and weights.
+activity_75,Sleep,"relaxation, sleep hygiene",Sleep activity focused on relaxation and sleep hygiene.
+activity_76,Yoga,"balance, flexibility",Yoga activity focused on balance and flexibility.
+activity_77,Strength,"training, weights",Strength activity focused on training and weights.
+activity_78,Strength,"muscle, weights",Strength activity focused on muscle and weights.
+activity_79,Nutrition,"meal plan, healthy eating",Nutrition activity focused on meal plan and healthy eating.
+activity_80,Yoga,"breathing, flexibility",Yoga activity focused on breathing and flexibility.
+activity_81,Strength,"weights, training",Strength activity focused on weights and training.
+activity_82,Sleep,"sleep hygiene, rest",Sleep activity focused on sleep hygiene and rest.
+activity_83,Yoga,"breathing, balance",Yoga activity focused on breathing and balance.
+activity_84,Sleep,"relaxation, rest",Sleep activity focused on relaxation and rest.
+activity_85,Meditation,"mind, relax",Meditation activity focused on mind and relax.
+activity_86,Sleep,"rest, sleep hygiene",Sleep activity focused on rest and sleep hygiene.
+activity_87,Mindfulness,"awareness, stress relief",Mindfulness activity focused on awareness and stress relief.
+activity_88,Cardio,"HIIT, aerobic",Cardio activity focused on HIIT and aerobic.
+activity_89,Sleep,"relaxation, sleep hygiene",Sleep activity focused on relaxation and sleep hygiene.
+activity_90,Strength,"weights, training",Strength activity focused on weights and training.
+activity_91,Cardio,"endurance, HIIT",Cardio activity focused on endurance and HIIT.
+activity_92,Yoga,"balance, breathing",Yoga activity focused on balance and breathing.
+activity_93,Cardio,"endurance, aerobic",Cardio activity focused on endurance and aerobic.
+activity_94,Nutrition,"diet, healthy eating",Nutrition activity focused on diet and healthy eating.
+activity_95,Meditation,"mind, focus",Meditation activity focused on mind and focus.
+activity_96,Cardio,"aerobic, endurance",Cardio activity focused on aerobic and endurance.
+activity_97,Mindfulness,"awareness, stress relief",Mindfulness activity focused on awareness and stress relief.
+activity_98,Mindfulness,"stress relief, calm",Mindfulness activity focused on stress relief and calm.
+activity_99,Mindfulness,"awareness, calm",Mindfulness activity focused on awareness and calm.
+activity_100,Yoga,"flexibility, breathing",Yoga activity focused on flexibility and breathing.
+activity_101,Yoga,"balance, breathing",Yoga activity focused on balance and breathing.
+activity_102,Mindfulness,"awareness, stress relief",Mindfulness activity focused on awareness and stress relief.
+activity_103,Strength,"muscle, weights",Strength activity focused on muscle and weights.
+activity_104,Meditation,"mind, relax",Meditation activity focused on mind and relax.
+activity_105,Yoga,"balance, breathing",Yoga activity focused on balance and breathing.
+activity_106,Yoga,"flexibility, balance",Yoga activity focused on flexibility and balance.
+activity_107,Nutrition,"meal plan, healthy eating",Nutrition activity focused on meal plan and healthy eating.
+activity_108,Cardio,"HIIT, endurance",Cardio activity focused on HIIT and endurance.
+activity_109,Yoga,"breathing, flexibility",Yoga activity focused on breathing and flexibility.
+activity_110,Cardio,"endurance, aerobic",Cardio activity focused on endurance and aerobic.
+activity_111,Yoga,"breathing, flexibility",Yoga activity focused on breathing and flexibility.
+activity_112,Meditation,"mind, relax",Meditation activity focused on mind and relax.
+activity_113,Meditation,"relax, mind",Meditation activity focused on relax and mind.
+activity_114,Sleep,"sleep hygiene, relaxation",Sleep activity focused on sleep hygiene and relaxation.
+activity_115,Yoga,"balance, breathing",Yoga activity focused on balance and breathing.
+activity_116,Sleep,"rest, relaxation",Sleep activity focused on rest and relaxation.
+activity_117,Sleep,"rest, sleep hygiene",Sleep activity focused on rest and sleep hygiene.
+activity_118,Nutrition,"meal plan, healthy eating",Nutrition activity focused on meal plan and healthy eating.
+activity_119,Yoga,"balance, breathing",Yoga activity focused on balance and breathing.
+activity_120,Nutrition,"healthy eating, diet",Nutrition activity focused on healthy eating and diet.
+activity_121,Yoga,"balance, breathing",Yoga activity focused on balance and breathing.
+activity_122,Meditation,"focus, mind",Meditation activity focused on focus and mind.
+activity_123,Sleep,"rest, sleep hygiene",Sleep activity focused on rest and sleep hygiene.
+activity_124,Sleep,"rest, relaxation",Sleep activity focused on rest and relaxation.
+activity_125,Sleep,"sleep hygiene, relaxation",Sleep activity focused on sleep hygiene and relaxation.
+activity_126,Sleep,"sleep hygiene, rest",Sleep activity focused on sleep hygiene and rest.
+activity_127,Strength,"training, muscle",Strength activity focused on training and muscle.
+activity_128,Yoga,"flexibility, breathing",Yoga activity focused on flexibility and breathing.
+activity_129,Yoga,"balance, breathing",Yoga activity focused on balance and breathing.
+activity_130,Nutrition,"diet, healthy eating",Nutrition activity focused on diet and healthy eating.
+activity_131,Cardio,"aerobic, HIIT",Cardio activity focused on aerobic and HIIT.
+activity_132,Yoga,"balance, flexibility",Yoga activity focused on balance and flexibility.
+activity_133,Sleep,"relaxation, sleep hygiene",Sleep activity focused on relaxation and sleep hygiene.
+activity_134,Cardio,"HIIT, aerobic",Cardio activity focused on HIIT and aerobic.
+activity_135,Nutrition,"meal plan, healthy eating",Nutrition activity focused on meal plan and healthy eating.
+activity_136,Nutrition,"healthy eating, diet",Nutrition activity focused on healthy eating and diet.
+activity_137,Meditation,"relax, focus",Meditation activity focused on relax and focus.
+activity_138,Mindfulness,"stress relief, calm",Mindfulness activity focused on stress relief and calm.
+activity_139,Mindfulness,"calm, stress relief",Mindfulness activity focused on calm and stress relief.
+activity_140,Cardio,"aerobic, endurance",Cardio activity focused on aerobic and endurance.
+activity_141,Strength,"weights, muscle",Strength activity focused on weights and muscle.
+activity_142,Strength,"weights, muscle",Strength activity focused on weights and muscle.
+activity_143,Sleep,"rest, relaxation",Sleep activity focused on rest and relaxation.
+activity_144,Mindfulness,"calm, awareness",Mindfulness activity focused on calm and awareness.
+activity_145,Strength,"muscle, weights",Strength activity focused on muscle and weights.
+activity_146,Strength,"weights, training",Strength activity focused on weights and training.
+activity_147,Yoga,"breathing, balance",Yoga activity focused on breathing and balance.
+activity_148,Cardio,"endurance, aerobic",Cardio activity focused on endurance and aerobic.
+activity_149,Mindfulness,"calm, stress relief",Mindfulness activity focused on calm and stress relief.
+activity_150,Mindfulness,"calm, awareness",Mindfulness activity focused on calm and awareness.
+activity_151,Strength,"training, muscle",Strength activity focused on training and muscle.
+activity_152,Nutrition,"meal plan, diet",Nutrition activity focused on meal plan and diet.
+activity_153,Yoga,"balance, breathing",Yoga activity focused on balance and breathing.
+activity_154,Yoga,"flexibility, balance",Yoga activity focused on flexibility and balance.
+activity_155,Sleep,"sleep hygiene, rest",Sleep activity focused on sleep hygiene and rest.
+activity_156,Mindfulness,"awareness, calm",Mindfulness activity focused on awareness and calm.
+activity_157,Mindfulness,"awareness, stress relief",Mindfulness activity focused on awareness and stress relief.
+activity_158,Cardio,"aerobic, HIIT",Cardio activity focused on aerobic and HIIT.
+activity_159,Mindfulness,"calm, awareness",Mindfulness activity focused on calm and awareness.
+activity_160,Sleep,"rest, relaxation",Sleep activity focused on rest and relaxation.
+activity_161,Sleep,"relaxation, sleep hygiene",Sleep activity focused on relaxation and sleep hygiene.
+activity_162,Strength,"training, weights",Strength activity focused on training and weights.
+activity_163,Sleep,"rest, sleep hygiene",Sleep activity focused on rest and sleep hygiene.
+activity_164,Nutrition,"meal plan, healthy eating",Nutrition activity focused on meal plan and healthy eating.
+activity_165,Nutrition,"healthy eating, meal plan",Nutrition activity focused on healthy eating and meal plan.
+activity_166,Meditation,"relax, mind",Meditation activity focused on relax and mind.
+activity_167,Meditation,"relax, mind",Meditation activity focused on relax and mind.
+activity_168,Cardio,"endurance, HIIT",Cardio activity focused on endurance and HIIT.
+activity_169,Meditation,"relax, focus",Meditation activity focused on relax and focus.
+activity_170,Meditation,"mind, relax",Meditation activity focused on mind and relax.
+activity_171,Cardio,"aerobic, HIIT",Cardio activity focused on aerobic and HIIT.
+activity_172,Mindfulness,"awareness, stress relief",Mindfulness activity focused on awareness and stress relief.
+activity_173,Strength,"weights, muscle",Strength activity focused on weights and muscle.
+activity_174,Nutrition,"meal plan, diet",Nutrition activity focused on meal plan and diet.
+activity_175,Sleep,"sleep hygiene, rest",Sleep activity focused on sleep hygiene and rest.
+activity_176,Yoga,"breathing, balance",Yoga activity focused on breathing and balance.
+activity_177,Strength,"training, weights",Strength activity focused on training and weights.
+activity_178,Mindfulness,"awareness, calm",Mindfulness activity focused on awareness and calm.
+activity_179,Sleep,"rest, relaxation",Sleep activity focused on rest and relaxation.
+activity_180,Yoga,"breathing, balance",Yoga activity focused on breathing and balance.
+activity_181,Yoga,"breathing, balance",Yoga activity focused on breathing and balance.
+activity_182,Mindfulness,"calm, stress relief",Mindfulness activity focused on calm and stress relief.
+activity_183,Nutrition,"healthy eating, diet",Nutrition activity focused on healthy eating and diet.
+activity_184,Meditation,"mind, relax",Meditation activity focused on mind and relax.
+activity_185,Cardio,"aerobic, HIIT",Cardio activity focused on aerobic and HIIT.
+activity_186,Yoga,"balance, breathing",Yoga activity focused on balance and breathing.
+activity_187,Meditation,"focus, relax",Meditation activity focused on focus and relax.
+activity_188,Yoga,"flexibility, balance",Yoga activity focused on flexibility and balance.
+activity_189,Sleep,"relaxation, sleep hygiene",Sleep activity focused on relaxation and sleep hygiene.
+activity_190,Strength,"weights, training",Strength activity focused on weights and training.
+activity_191,Nutrition,"diet, healthy eating",Nutrition activity focused on diet and healthy eating.
+activity_192,Yoga,"flexibility, balance",Yoga activity focused on flexibility and balance.
+activity_193,Nutrition,"diet, healthy eating",Nutrition activity focused on diet and healthy eating.
+activity_194,Strength,"training, weights",Strength activity focused on training and weights.
+activity_195,Meditation,"mind, relax",Meditation activity focused on mind and relax.
+activity_196,Mindfulness,"awareness, calm",Mindfulness activity focused on awareness and calm.
+activity_197,Cardio,"endurance, aerobic",Cardio activity focused on endurance and aerobic.
+activity_198,Yoga,"breathing, balance",Yoga activity focused on breathing and balance.
+activity_199,Meditation,"mind, focus",Meditation activity focused on mind and focus.
+activity_200,Yoga,"flexibility, breathing",Yoga activity focused on flexibility and breathing.
+activity_201,Meditation,"relax, mind",Meditation activity focused on relax and mind.
+activity_202,Meditation,"focus, relax",Meditation activity focused on focus and relax.
+activity_203,Nutrition,"healthy eating, diet",Nutrition activity focused on healthy eating and diet.
+activity_204,Nutrition,"healthy eating, diet",Nutrition activity focused on healthy eating and diet.
+activity_205,Yoga,"balance, flexibility",Yoga activity focused on balance and flexibility.
+activity_206,Meditation,"focus, relax",Meditation activity focused on focus and relax.
+activity_207,Meditation,"mind, focus",Meditation activity focused on mind and focus.
+activity_208,Strength,"muscle, training",Strength activity focused on muscle and training.
+activity_209,Strength,"muscle, weights",Strength activity focused on muscle and weights.
+activity_210,Yoga,"flexibility, balance",Yoga activity focused on flexibility and balance.
+activity_211,Nutrition,"diet, meal plan",Nutrition activity focused on diet and meal plan.
+activity_212,Strength,"weights, training",Strength activity focused on weights and training.
+activity_213,Cardio,"HIIT, aerobic",Cardio activity focused on HIIT and aerobic.
+activity_214,Meditation,"relax, mind",Meditation activity focused on relax and mind.
+activity_215,Strength,"muscle, training",Strength activity focused on muscle and training.
+activity_216,Nutrition,"healthy eating, meal plan",Nutrition activity focused on healthy eating and meal plan.
+activity_217,Nutrition,"meal plan, healthy eating",Nutrition activity focused on meal plan and healthy eating.
+activity_218,Strength,"muscle, training",Strength activity focused on muscle and training.
+activity_219,Cardio,"HIIT, aerobic",Cardio activity focused on HIIT and aerobic.
+activity_220,Meditation,"relax, mind",Meditation activity focused on relax and mind.
+activity_221,Mindfulness,"awareness, stress relief",Mindfulness activity focused on awareness and stress relief.
+activity_222,Nutrition,"healthy eating, meal plan",Nutrition activity focused on healthy eating and meal plan.
+activity_223,Nutrition,"healthy eating, diet",Nutrition activity focused on healthy eating and diet.
+activity_224,Cardio,"aerobic, HIIT",Cardio activity focused on aerobic and HIIT.
+activity_225,Yoga,"balance, breathing",Yoga activity focused on balance and breathing.
+activity_226,Meditation,"relax, focus",Meditation activity focused on relax and focus.
+activity_227,Nutrition,"healthy eating, diet",Nutrition activity focused on healthy eating and diet.
+activity_228,Yoga,"breathing, balance",Yoga activity focused on breathing and balance.
+activity_229,Cardio,"HIIT, aerobic",Cardio activity focused on HIIT and aerobic.
+activity_230,Meditation,"relax, mind",Meditation activity focused on relax and mind.
+activity_231,Meditation,"mind, focus",Meditation activity focused on mind and focus.
+activity_232,Mindfulness,"stress relief, calm",Mindfulness activity focused on stress relief and calm.
+activity_233,Cardio,"aerobic, HIIT",Cardio activity focused on aerobic and HIIT.
+activity_234,Cardio,"aerobic, HIIT",Cardio activity focused on aerobic and HIIT.
+activity_235,Nutrition,"diet, healthy eating",Nutrition activity focused on diet and healthy eating.
+activity_236,Yoga,"breathing, flexibility",Yoga activity focused on breathing and flexibility.
+activity_237,Nutrition,"diet, meal plan",Nutrition activity focused on diet and meal plan.
+activity_238,Mindfulness,"calm, awareness",Mindfulness activity focused on calm and awareness.
+activity_239,Strength,"muscle, training",Strength activity focused on muscle and training.
+activity_240,Mindfulness,"stress relief, calm",Mindfulness activity focused on stress relief and calm.
+activity_241,Cardio,"aerobic, endurance",Cardio activity focused on aerobic and endurance.
+activity_242,Meditation,"relax, focus",Meditation activity focused on relax and focus.
+activity_243,Strength,"muscle, training",Strength activity focused on muscle and training.
+activity_244,Sleep,"rest, sleep hygiene",Sleep activity focused on rest and sleep hygiene.
+activity_245,Nutrition,"meal plan, diet",Nutrition activity focused on meal plan and diet.
+activity_246,Strength,"weights, muscle",Strength activity focused on weights and muscle.
+activity_247,Strength,"muscle, training",Strength activity focused on muscle and training.
+activity_248,Nutrition,"meal plan, diet",Nutrition activity focused on meal plan and diet.
+activity_249,Nutrition,"meal plan, healthy eating",Nutrition activity focused on meal plan and healthy eating.
+activity_250,Meditation,"focus, relax",Meditation activity focused on focus and relax.
+activity_251,Mindfulness,"stress relief, calm",Mindfulness activity focused on stress relief and calm.
+activity_252,Meditation,"mind, relax",Meditation activity focused on mind and relax.
+activity_253,Mindfulness,"stress relief, awareness",Mindfulness activity focused on stress relief and awareness.
+activity_254,Meditation,"relax, mind",Meditation activity focused on relax and mind.
+activity_255,Cardio,"endurance, aerobic",Cardio activity focused on endurance and aerobic.
+activity_256,Cardio,"endurance, HIIT",Cardio activity focused on endurance and HIIT.
+activity_257,Cardio,"HIIT, aerobic",Cardio activity focused on HIIT and aerobic.
+activity_258,Strength,"weights, training",Strength activity focused on weights and training.
+activity_259,Meditation,"focus, relax",Meditation activity focused on focus and relax.
+activity_260,Yoga,"breathing, flexibility",Yoga activity focused on breathing and flexibility.
+activity_261,Cardio,"aerobic, HIIT",Cardio activity focused on aerobic and HIIT.
+activity_262,Sleep,"sleep hygiene, relaxation",Sleep activity focused on sleep hygiene and relaxation.
+activity_263,Meditation,"focus, relax",Meditation activity focused on focus and relax.
+activity_264,Yoga,"balance, flexibility",Yoga activity focused on balance and flexibility.
+activity_265,Sleep,"rest, relaxation",Sleep activity focused on rest and relaxation.
+activity_266,Nutrition,"healthy eating, meal plan",Nutrition activity focused on healthy eating and meal plan.
+activity_267,Mindfulness,"calm, stress relief",Mindfulness activity focused on calm and stress relief.
+activity_268,Sleep,"sleep hygiene, relaxation",Sleep activity focused on sleep hygiene and relaxation.
+activity_269,Meditation,"relax, focus",Meditation activity focused on relax and focus.
+activity_270,Cardio,"endurance, HIIT",Cardio activity focused on endurance and HIIT.
+activity_271,Yoga,"balance, flexibility",Yoga activity focused on balance and flexibility.
+activity_272,Yoga,"balance, breathing",Yoga activity focused on balance and breathing.
+activity_273,Mindfulness,"stress relief, awareness",Mindfulness activity focused on stress relief and awareness.
+activity_274,Nutrition,"diet, meal plan",Nutrition activity focused on diet and meal plan.
+activity_275,Cardio,"HIIT, endurance",Cardio activity focused on HIIT and endurance.
+activity_276,Cardio,"endurance, aerobic",Cardio activity focused on endurance and aerobic.
+activity_277,Sleep,"relaxation, sleep hygiene",Sleep activity focused on relaxation and sleep hygiene.
+activity_278,Strength,"weights, training",Strength activity focused on weights and training.
+activity_279,Strength,"weights, training",Strength activity focused on weights and training.
+activity_280,Meditation,"focus, relax",Meditation activity focused on focus and relax.
+activity_281,Meditation,"mind, focus",Meditation activity focused on mind and focus.
+activity_282,Mindfulness,"stress relief, calm",Mindfulness activity focused on stress relief and calm.
+activity_283,Yoga,"balance, breathing",Yoga activity focused on balance and breathing.
+activity_284,Nutrition,"healthy eating, meal plan",Nutrition activity focused on healthy eating and meal plan.
+activity_285,Sleep,"sleep hygiene, rest",Sleep activity focused on sleep hygiene and rest.
+activity_286,Sleep,"relaxation, rest",Sleep activity focused on relaxation and rest.
+activity_287,Nutrition,"healthy eating, diet",Nutrition activity focused on healthy eating and diet.
+activity_288,Strength,"weights, training",Strength activity focused on weights and training.
+activity_289,Sleep,"relaxation, rest",Sleep activity focused on relaxation and rest.
+activity_290,Nutrition,"healthy eating, meal plan",Nutrition activity focused on healthy eating and meal plan.
+activity_291,Yoga,"balance, flexibility",Yoga activity focused on balance and flexibility.
+activity_292,Strength,"muscle, weights",Strength activity focused on muscle and weights.
+activity_293,Cardio,"aerobic, HIIT",Cardio activity focused on aerobic and HIIT.
+activity_294,Mindfulness,"calm, stress relief",Mindfulness activity focused on calm and stress relief.
+activity_295,Cardio,"HIIT, endurance",Cardio activity focused on HIIT and endurance.
+activity_296,Nutrition,"meal plan, healthy eating",Nutrition activity focused on meal plan and healthy eating.
+activity_297,Yoga,"breathing, flexibility",Yoga activity focused on breathing and flexibility.
+activity_298,Yoga,"balance, breathing",Yoga activity focused on balance and breathing.
+activity_299,Mindfulness,"awareness, calm",Mindfulness activity focused on awareness and calm.

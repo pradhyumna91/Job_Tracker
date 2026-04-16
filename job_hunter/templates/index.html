@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Hunter - F1 Student Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            background: #0f111a;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        /* ---- Header ---- */
+        header {
+            background: linear-gradient(135deg, #1a1d2e 0%, #0f111a 100%);
+            border-bottom: 1px solid #2a2d3e;
+            padding: 20px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .logo span {
+            font-size: 12px;
+            color: #8892b0;
+            background: #1e2235;
+            padding: 4px 10px;
+            border-radius: 12px;
+            border: 1px solid #2a2d3e;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .last-scan {
+            font-size: 12px;
+            color: #636e8a;
+        }
+
+        /* ---- Buttons ---- */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #6c63ff;
+            color: #fff;
+        }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-primary:disabled {
+            background: #3d3a6e;
+            cursor: not-allowed;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #8892b0;
+            border: 1px solid #2a2d3e;
+        }
+        .btn-outline:hover { border-color: #6c63ff; color: #6c63ff; }
+
+        .btn-export {
+            background: #1e2235;
+            color: #8892b0;
+            border: 1px solid #2a2d3e;
+        }
+        .btn-export:hover { border-color: #64ffda; color: #64ffda; }
+
+        /* Spinner inside button */
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+        .btn-primary.loading .spinner { display: inline-block; }
+        .btn-primary.loading .btn-text { display: none; }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ---- Stats Cards ---- */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            padding: 24px 32px;
+        }
+
+        .stat-card {
+            background: #1a1d2e;
+            border: 1px solid #2a2d3e;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: border-color 0.2s;
+        }
+        .stat-card:hover { border-color: #6c63ff; }
+
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .stat-card .label {
+            font-size: 13px;
+            color: #636e8a;
+            margin-top: 4px;
+        }
+
+        .stat-card.highlight .number { color: #64ffda; }
+        .stat-card.warning .number { color: #ffd93d; }
+        .stat-card.info .number { color: #6c63ff; }
+
+        /* ---- Toolbar ---- */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px 16px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid #2a2d3e;
+            border-radius: 20px;
+            background: transparent;
+            color: #8892b0;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover { border-color: #6c63ff; color: #6c63ff; }
+        .filter-btn.active {
+            background: #6c63ff;
+            color: #fff;
+            border-color: #6c63ff;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            background: #1a1d2e;
+            border: 1px solid #2a2d3e;
+            border-radius: 8px;
+            padding: 10px 16px 10px 40px;
+            color: #e0e0e0;
+            font-size: 14px;
+            width: 280px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .search-box input:focus { border-color: #6c63ff; }
+        .search-box input::placeholder { color: #4a5068; }
+
+        .search-box svg {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #4a5068;
+        }
+
+        /* ---- Table ---- */
+        .table-container {
+            padding: 0 32px 32px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1a1d2e;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #2a2d3e;
+        }
+
+        thead th {
+            background: #151726;
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #636e8a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #2a2d3e;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+        thead th:hover { color: #6c63ff; }
+
+        tbody tr {
+            border-bottom: 1px solid #1e2235;
+            transition: background 0.15s;
+        }
+        tbody tr:hover { background: #1e2235; }
+        tbody tr:last-child { border-bottom: none; }
+
+        td {
+            padding: 14px 16px;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        .job-title {
+            font-weight: 600;
+            color: #fff;
+            max-width: 320px;
+        }
+
+        .job-title a {
+            color: #fff;
+            text-decoration: none;
+        }
+        .job-title a:hover { color: #6c63ff; text-decoration: underline; }
+
+        .company { color: #b0bbd5; }
+        .location { color: #636e8a; font-size: 13px; }
+        .date { color: #636e8a; font-size: 13px; white-space: nowrap; }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .badge-h1b {
+            background: rgba(100, 255, 218, 0.12);
+            color: #64ffda;
+            border: 1px solid rgba(100, 255, 218, 0.25);
+        }
+
+        .badge-unknown {
+            background: rgba(255, 217, 61, 0.1);
+            color: #ffd93d;
+            border: 1px solid rgba(255, 217, 61, 0.2);
+        }
+
+        .badge-unlikely {
+            background: rgba(255, 82, 82, 0.1);
+            color: #ff5252;
+            border: 1px solid rgba(255, 82, 82, 0.2);
+        }
+
+        .badge-source {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .badge-linkedin { background: #1a3a5c; color: #4a9eff; }
+        .badge-indeed { background: #3a1a4a; color: #c77dff; }
+        .badge-google { background: #1a3a2a; color: #69db7c; }
+        .badge-remoteok { background: #1a3a3a; color: #66d9e8; }
+        .badge-jobright { background: #3a3a1a; color: #ffd93d; }
+        .badge-hiringcafe { background: #1a3a1a; color: #a9dc76; }
+
+        .badge-intern {
+            background: rgba(108, 99, 255, 0.12);
+            color: #a29bfe;
+            border: 1px solid rgba(108, 99, 255, 0.25);
+            margin-left: 6px;
+        }
+
+        .badge-fulltime {
+            background: rgba(100, 255, 218, 0.08);
+            color: #64ffda;
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            margin-left: 6px;
+        }
+
+        .badge-newgrad {
+            background: rgba(255, 159, 67, 0.12);
+            color: #ff9f43;
+            border: 1px solid rgba(255, 159, 67, 0.25);
+            margin-left: 6px;
+        }
+
+        /* Action buttons in row */
+        .row-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .row-btn {
+            padding: 6px 12px;
+            border: 1px solid #2a2d3e;
+            border-radius: 6px;
+            background: transparent;
+            color: #8892b0;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .row-btn:hover { border-color: #6c63ff; color: #6c63ff; }
+        .row-btn.applied {
+            background: rgba(100, 255, 218, 0.1);
+            border-color: #64ffda;
+            color: #64ffda;
+        }
+
+        /* ---- Empty state ---- */
+        .empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: #636e8a;
+        }
+        .empty h3 { font-size: 18px; color: #8892b0; margin-bottom: 8px; }
+
+        /* ---- Loading overlay ---- */
+        .loading-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #6c63ff, #64ffda, #6c63ff);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            z-index: 200;
+            display: none;
+        }
+        .loading-bar.active { display: block; }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* ---- Toast ---- */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1a1d2e;
+            border: 1px solid #64ffda;
+            color: #64ffda;
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 300;
+            transform: translateY(80px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header { padding: 16px; flex-direction: column; gap: 12px; }
+            .stats { padding: 16px; grid-template-columns: repeat(2, 1fr); }
+            .toolbar { padding: 0 16px 12px; }
+            .table-container { padding: 0 16px 16px; }
+            .search-box input { width: 100%; }
+            td, th { padding: 10px 8px; font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="loading-bar" id="loadingBar"></div>
+
+<header>
+    <div class="logo">
+        <h1>Job Hunter</h1>
+        <span>F1 Student | Internships, New Grad & Entry-Level</span>
+    </div>
+    <div class="header-actions">
+        <span class="last-scan" id="lastScan">Last scan: never</span>
+        <button class="btn btn-export" onclick="exportCSV()">Export CSV</button>
+        <button class="btn btn-primary" id="refreshBtn" onclick="refresh()">
+            <span class="spinner"></span>
+            <span class="btn-text">Refresh Jobs</span>
+        </button>
+    </div>
+</header>
+
+<div class="stats" id="statsContainer">
+    <div class="stat-card info">
+        <div class="number" id="statTotal">--</div>
+        <div class="label">Total Jobs</div>
+    </div>
+    <div class="stat-card highlight">
+        <div class="number" id="statNew">--</div>
+        <div class="label">New</div>
+    </div>
+    <div class="stat-card" style="">
+        <div class="number" id="statH1b" style="color: #64ffda;">--</div>
+        <div class="label">H1B Friendly</div>
+    </div>
+    <div class="stat-card warning">
+        <div class="number" id="statApplied">--</div>
+        <div class="label">Applied</div>
+    </div>
+</div>
+
+<div class="toolbar">
+    <div class="filters">
+        <button class="filter-btn active" data-filter="all">All Jobs</button>
+        <button class="filter-btn" data-filter="new">New</button>
+        <button class="filter-btn" data-filter="h1b">H1B Friendly</button>
+        <button class="filter-btn" data-filter="internship">Internships</button>
+        <button class="filter-btn" data-filter="fulltime">Full-Time Entry</button>
+    </div>
+    <div class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Search title, company, location...">
+    </div>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th data-sort="title">Title</th>
+                <th data-sort="company">Company</th>
+                <th data-sort="location">Location</th>
+                <th data-sort="source">Source</th>
+                <th data-sort="sponsorship_status">Sponsorship</th>
+                <th data-sort="first_seen">Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="jobsBody">
+        </tbody>
+    </table>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    let allJobs = [];
+    let currentFilter = "all";
+    let currentSearch = "";
+    let sortField = "first_seen";
+    let sortDir = -1; // descending
+
+    // ---- API calls ----
+    async function fetchJobs(filter = "all", search = "") {
+        const params = new URLSearchParams({ filter, search });
+        const resp = await fetch(`/api/jobs?${params}`);
+        return resp.json();
+    }
+
+    async function fetchStats() {
+        const resp = await fetch("/api/stats");
+        return resp.json();
+    }
+
+    // ---- Render ----
+    function renderStats(stats) {
+        document.getElementById("statTotal").textContent = stats.total;
+        document.getElementById("statNew").textContent = stats.new;
+        document.getElementById("statH1b").textContent = stats.h1b_friendly;
+        document.getElementById("statApplied").textContent = stats.applied;
+
+        if (stats.last_scan) {
+            const d = new Date(stats.last_scan);
+            document.getElementById("lastScan").textContent =
+                `Last scan: ${d.toLocaleTimeString()}`;
+        }
+    }
+
+    function sponsorBadge(status) {
+        if (status === "likely") return '<span class="badge badge-h1b">H1B Likely</span>';
+        if (status === "unlikely") return '<span class="badge badge-unlikely">No Sponsor</span>';
+        return '<span class="badge badge-unknown">Unknown</span>';
+    }
+
+    function sourceBadge(source) {
+        const cls = `badge-${source}`;
+        const name = source.charAt(0).toUpperCase() + source.slice(1);
+        return `<span class="badge badge-source ${cls}">${name}</span>`;
+    }
+
+    function formatDate(iso) {
+        if (!iso) return "";
+        const d = new Date(iso);
+        return d.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+            + " " + d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+    }
+
+    function getJobTypeBadge(job) {
+        const tags = job.tags || "";
+        const title = (job.title || "").toLowerCase();
+        if (tags.includes("internship") || title.includes("intern")) {
+            return '<span class="badge badge-intern">Internship</span>';
+        }
+        if (tags.includes("entry-level")) {
+            return '<span class="badge badge-newgrad">New Grad / Entry</span>';
+        }
+        if (tags.includes("full-time")) {
+            return '<span class="badge badge-fulltime">Full-Time</span>';
+        }
+        return '';
+    }
+
+    function renderJobs(jobs) {
+        const tbody = document.getElementById("jobsBody");
+
+        if (!jobs.length) {
+            tbody.innerHTML = `
+                <tr><td colspan="7">
+                    <div class="empty">
+                        <h3>No jobs found</h3>
+                        <p>Try a different filter or click Refresh to scan for new listings.</p>
+                    </div>
+                </td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = jobs.map(job => {
+            const url = job.url
+                ? `<a href="${job.url}" target="_blank" rel="noopener">${escHtml(job.title)}</a>`
+                : escHtml(job.title);
+            const typeBadge = getJobTypeBadge(job);
+            const appliedCls = job.applied ? "applied" : "";
+            const appliedTxt = job.applied ? "Applied" : "Mark Applied";
+
+            return `<tr>
+                <td class="job-title">${url}${typeBadge}</td>
+                <td class="company">${escHtml(job.company)}</td>
+                <td class="location">${escHtml(job.location)}</td>
+                <td>${sourceBadge(job.source)}</td>
+                <td>${sponsorBadge(job.sponsorship_status)}</td>
+                <td class="date">${formatDate(job.first_seen)}</td>
+                <td>
+                    <div class="row-actions">
+                        <button class="row-btn ${appliedCls}"
+                            onclick="markApplied('${job.id}', this)">${appliedTxt}</button>
+                    </div>
+                </td>
+            </tr>`;
+        }).join("");
+    }
+
+    function escHtml(s) {
+        if (!s) return "";
+        const div = document.createElement("div");
+        div.textContent = s;
+        return div.innerHTML;
+    }
+
+    // ---- Sorting ----
+    function sortJobs(jobs, field, dir) {
+        return [...jobs].sort((a, b) => {
+            let va = (a[field] || "").toString().toLowerCase();
+            let vb = (b[field] || "").toString().toLowerCase();
+            if (va < vb) return -1 * dir;
+            if (va > vb) return 1 * dir;
+            return 0;
+        });
+    }
+
+    // ---- Load & refresh ----
+    async function loadAll() {
+        const [jobs, stats] = await Promise.all([
+            fetchJobs(currentFilter, currentSearch),
+            fetchStats(),
+        ]);
+        allJobs = jobs;
+        renderStats(stats);
+        const sorted = sortJobs(allJobs, sortField, sortDir);
+        renderJobs(sorted);
+    }
+
+    async function refresh() {
+        const btn = document.getElementById("refreshBtn");
+        const bar = document.getElementById("loadingBar");
+        btn.classList.add("loading");
+        btn.disabled = true;
+        bar.classList.add("active");
+
+        await fetch("/api/refresh", { method: "POST" });
+        showToast("Scanning job boards... this takes ~1 minute");
+
+        // Poll until scan finishes
+        const poll = setInterval(async () => {
+            const stats = await fetchStats();
+            if (!stats.scan_running) {
+                clearInterval(poll);
+                btn.classList.remove("loading");
+                btn.disabled = false;
+                bar.classList.remove("active");
+                await loadAll();
+                showToast(`Scan complete! ${stats.last_new_count} new jobs found.`);
+            }
+        }, 3000);
+    }
+
+    async function markApplied(jobId, el) {
+        await fetch("/api/mark", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: jobId, action: "applied" }),
+        });
+        el.textContent = "Applied";
+        el.classList.add("applied");
+        const stats = await fetchStats();
+        renderStats(stats);
+        showToast("Marked as applied!");
+    }
+
+    function exportCSV() {
+        if (!allJobs.length) return;
+        const headers = ["title", "company", "location", "source", "url", "sponsorship_status", "first_seen"];
+        const rows = allJobs.map(j => headers.map(h => `"${(j[h] || "").replace(/"/g, '""')}"`).join(","));
+        const csv = [headers.join(","), ...rows].join("\n");
+        const blob = new Blob([csv], { type: "text/csv" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `jobs_${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 4000);
+    }
+
+    // ---- Event listeners ----
+
+    // Filter buttons
+    document.querySelectorAll(".filter-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            currentFilter = btn.dataset.filter;
+            loadAll();
+        });
+    });
+
+    // Search
+    let searchTimer;
+    document.getElementById("searchInput").addEventListener("input", (e) => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => {
+            currentSearch = e.target.value;
+            loadAll();
+        }, 300);
+    });
+
+    // Column sorting
+    document.querySelectorAll("thead th[data-sort]").forEach(th => {
+        th.addEventListener("click", () => {
+            const field = th.dataset.sort;
+            if (sortField === field) {
+                sortDir *= -1;
+            } else {
+                sortField = field;
+                sortDir = 1;
+            }
+            const sorted = sortJobs(allJobs, sortField, sortDir);
+            renderJobs(sorted);
+        });
+    });
+
+    // Initial load
+    loadAll();
+</script>
+
+</body>
+</html>
