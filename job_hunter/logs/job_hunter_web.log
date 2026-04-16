@@ -113,3 +113,10 @@
 2026-04-16 12:12:44,504 [werkzeug] INFO:  * Debugger PIN: 100-932-263
 2026-04-16 12:24:15,952 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 12:24:15] "GET /api/stats HTTP/1.1" 200 -
 2026-04-16 12:29:09,622 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 12:29:09] "GET /api/jobs HTTP/1.1" 200 -
+2026-04-16 13:26:53,272 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 13:26:53] "GET / HTTP/1.1" 200 -
+2026-04-16 13:26:53,463 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 13:26:53] "GET /api/stats HTTP/1.1" 200 -
+2026-04-16 13:26:53,466 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 13:26:53] "GET /api/jobs?filter=all&search= HTTP/1.1" 200 -
+2026-04-16 13:26:53,769 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 13:26:53] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-04-16 13:40:32,137 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 13:40:32] "GET / HTTP/1.1" 200 -
+2026-04-16 13:40:32,329 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 13:40:32] "GET /api/stats HTTP/1.1" 200 -
+2026-04-16 13:40:32,331 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 13:40:32] "GET /api/jobs?filter=all&search= HTTP/1.1" 200 -
