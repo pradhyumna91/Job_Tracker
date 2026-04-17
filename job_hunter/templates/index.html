@@ -235,6 +235,9 @@
             white-space: nowrap;
         }
         thead th:hover { color: #6c63ff; }
+        thead th.sort-asc::after { content: " \u25B2"; font-size: 10px; color: #6c63ff; }
+        thead th.sort-desc::after { content: " \u25BC"; font-size: 10px; color: #6c63ff; }
+        thead th.sort-asc, thead th.sort-desc { color: #6c63ff; }
 
         tbody tr {
             border-bottom: 1px solid #1e2235;
@@ -301,11 +304,11 @@
         }
 
         .badge-linkedin { background: #1a3a5c; color: #4a9eff; }
-        .badge-indeed { background: #3a1a4a; color: #c77dff; }
-        .badge-google { background: #1a3a2a; color: #69db7c; }
         .badge-remoteok { background: #1a3a3a; color: #66d9e8; }
         .badge-jobright { background: #3a3a1a; color: #ffd93d; }
-        .badge-hiringcafe { background: #1a3a1a; color: #a9dc76; }
+        .badge-wellfound { background: #3a1a4a; color: #c77dff; }
+        .badge-myvisajobs { background: #1a3a2a; color: #69db7c; }
+        .badge-simplify { background: #1a2a3a; color: #74c0fc; }
 
         .badge-intern {
             background: rgba(108, 99, 255, 0.12);
@@ -442,7 +445,7 @@
     </div>
     <div class="stat-card" style="">
         <div class="number" id="statH1b" style="color: #64ffda;">--</div>
-        <div class="label">H1B Friendly</div>
+        <div class="label">F1 / H1B Friendly</div>
     </div>
     <div class="stat-card warning">
         <div class="number" id="statApplied">--</div>
@@ -475,7 +478,7 @@
                 <th data-sort="location">Location</th>
                 <th data-sort="source">Source</th>
                 <th data-sort="sponsorship_status">Sponsorship</th>
-                <th data-sort="first_seen">Date</th>
+                <th data-sort="date_posted">Posted</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -490,8 +493,8 @@
     let allJobs = [];
     let currentFilter = "all";
     let currentSearch = "";
-    let sortField = "first_seen";
-    let sortDir = -1; // descending
+    let sortField = "date_posted";
+    let sortDir = -1; // descending (newest first)
 
     // ---- API calls ----
     async function fetchJobs(filter = "all", search = "") {
@@ -520,7 +523,7 @@
     }
 
     function sponsorBadge(status) {
-        if (status === "likely") return '<span class="badge badge-h1b">H1B Likely</span>';
+        if (status === "likely") return '<span class="badge badge-h1b">F1 Friendly</span>';
         if (status === "unlikely") return '<span class="badge badge-unlikely">No Sponsor</span>';
         return '<span class="badge badge-unknown">Unknown</span>';
     }
@@ -581,7 +584,7 @@
                 <td class="location">${escHtml(job.location)}</td>
                 <td>${sourceBadge(job.source)}</td>
                 <td>${sponsorBadge(job.sponsorship_status)}</td>
-                <td class="date">${formatDate(job.first_seen)}</td>
+                <td class="date">${formatDate(job.date_posted || job.first_seen)}</td>
                 <td>
                     <div class="row-actions">
                         <button class="row-btn ${appliedCls}"
@@ -701,6 +704,15 @@
     });
 
     // Column sorting
+    function updateSortIndicators() {
+        document.querySelectorAll("thead th[data-sort]").forEach(h => {
+            h.classList.remove("sort-asc", "sort-desc");
+            if (h.dataset.sort === sortField) {
+                h.classList.add(sortDir === 1 ? "sort-asc" : "sort-desc");
+            }
+        });
+    }
+
     document.querySelectorAll("thead th[data-sort]").forEach(th => {
         th.addEventListener("click", () => {
             const field = th.dataset.sort;
@@ -708,14 +720,16 @@
                 sortDir *= -1;
             } else {
                 sortField = field;
-                sortDir = 1;
+                sortDir = field === "date_posted" ? -1 : 1; // dates default newest first
             }
+            updateSortIndicators();
             const sorted = sortJobs(allJobs, sortField, sortDir);
             renderJobs(sorted);
         });
     });
 
     // Initial load
+    updateSortIndicators();
     loadAll();
 </script>
 

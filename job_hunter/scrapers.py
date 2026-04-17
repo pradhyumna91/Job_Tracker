@@ -5,9 +5,12 @@ import json
 import time
 import random
 import logging
+import re
 from urllib.parse import quote_plus
 import requests
 from bs4 import BeautifulSoup
+
+from datetime import datetime, timezone
 
 from config import SEARCH_QUERIES, LOCATIONS, EXPERIENCE_LEVEL
 
@@ -23,13 +26,99 @@ HEADERS = {
 }
 
 
-def _make_id(source: str, title: str, company: str, location: str) -> str:
-    raw = f"{source}|{title}|{company}|{location}".lower().strip()
+def _make_id(title: str, company: str, location: str) -> str:
+    """Source-agnostic ID — same job from different boards deduplicates properly."""
+    raw = f"{title}|{company}|{location}".lower().strip()
+    # Normalize whitespace
+    raw = re.sub(r"\s+", " ", raw)
     return hashlib.sha256(raw.encode()).hexdigest()[:16]
 
 
 def _polite_delay():
-    time.sleep(random.uniform(1.5, 3.5))
+    time.sleep(random.uniform(1.5, 3.0))
+
+
+def _short_delay():
+    time.sleep(random.uniform(0.5, 1.2))
+
+
+# ---------------------------------------------------------------------------
+# Description fetcher (second-pass enrichment)
+# ---------------------------------------------------------------------------
+def fetch_description(url: str) -> str:
+    """Fetch a job URL and extract description text.
+
+    Works best for Lever, Greenhouse, LinkedIn, and generic career pages.
+    Returns cleaned plain-text description or empty string on failure.
+    """
+    if not url:
+        return ""
+    try:
+        resp = requests.get(url, headers=HEADERS, timeout=10)
+        if resp.status_code != 200:
+            return ""
+
+        soup = BeautifulSoup(resp.text, "html.parser")
+
+        # Remove script/style noise
+        for tag in soup(["script", "style", "nav", "header", "footer"]):
+            tag.decompose()
+
+        # Try known job page selectors (most specific first)
+        selectors = [
+            # Lever
+            {"class_": "section-wrapper page-centered"},
+            {"class_": "content"},
+            # Greenhouse
+            {"id": "content"},
+            {"id": "app_body"},
+            # LinkedIn
+            {"class_": "description__text"},
+            {"class_": "show-more-less-html__markup"},
+            # Jobright
+            {"class_": re.compile(r"job.?description", re.I)},
+            # Generic
+            {"class_": re.compile(r"description|job.?detail|posting.?body", re.I)},
+            {"role": "main"},
+        ]
+
+        text = ""
+        for sel in selectors:
+            el = soup.find("div", **sel) or soup.find("section", **sel)
+            if el:
+                text = el.get_text(separator=" ", strip=True)
+                break
+
+        if not text:
+            # Last resort: grab the body text
+            body = soup.find("body")
+            if body:
+                text = body.get_text(separator=" ", strip=True)
+
+        # Truncate to reasonable size (sponsorship keywords are usually near top)
+        return text[:5000]
+
+    except Exception as e:
+        logger.debug(f"Could not fetch description from {url}: {e}")
+        return ""
+
+
+def enrich_descriptions(jobs: list[dict], max_fetch: int = 50) -> list[dict]:
+    """Fetch descriptions for jobs that don't have one. Capped to avoid slowdowns."""
+    fetched = 0
+    for job in jobs:
+        if job.get("description"):
+            continue
+        if fetched >= max_fetch:
+            break
+        desc = fetch_description(job.get("url", ""))
+        if desc:
+            job["description"] = desc
+            fetched += 1
+        _short_delay()
+
+    logger.info(f"Enriched {fetched} job descriptions")
+    return jobs
 
 
 # ---------------------------------------------------------------------------
@@ -72,7 +161,7 @@ def scrape_linkedin(query: str, location: str = "United States") -> list[dict]:
                 continue
 
             jobs.append({
-                "id": _make_id("linkedin", title, company, loc),
+                "id": _make_id(title, company, loc),
                 "title": title,
                 "company": company,
                 "location": loc,
@@ -80,6 +169,7 @@ def scrape_linkedin(query: str, location: str = "United States") -> list[dict]:
                 "source": "linkedin",
                 "description": "",
                 "salary": "",
+                "date_posted": datetime.now(timezone.utc).isoformat(),
                 "tags": [query],
             })
 
@@ -87,120 +177,6 @@ def scrape_linkedin(query: str, location: str = "United States") -> list[dict]:
     except Exception as e:
         logger.error(f"LinkedIn scraper error for '{query}': {e}")
     return jobs
-
-
-# ---------------------------------------------------------------------------
-# Indeed (public search page)
-# ---------------------------------------------------------------------------
-def scrape_indeed(query: str, location: str = "United States") -> list[dict]:
-    """Scrape Indeed public search results."""
-    jobs = []
-    try:
-        encoded_query = quote_plus(query)
-        encoded_loc = quote_plus(location)
-        url = (
-            f"https://www.indeed.com/jobs?q={encoded_query}"
-            f"&l={encoded_loc}&fromage=1&sort=date"  # last 1 day
-        )
-        resp = requests.get(url, headers=HEADERS, timeout=15)
-        if resp.status_code != 200:
-            logger.warning(f"Indeed returned {resp.status_code} for '{query}'")
-            return jobs
-
-        soup = BeautifulSoup(resp.text, "html.parser")
-        cards = soup.find_all("div", class_="job_seen_beacon")
-
-        for card in cards:
-            title_el = card.find("h2", class_="jobTitle")
-            company_el = card.find("span", attrs={"data-testid": "company-name"})
-            location_el = card.find("div", attrs={"data-testid": "text-location"})
-            link_el = card.find("a", class_="jcs-JobTitle")
-
-            title = title_el.get_text(strip=True) if title_el else ""
-            company = company_el.get_text(strip=True) if company_el else ""
-            loc = location_el.get_text(strip=True) if location_el else ""
-            job_link = ""
-            if link_el and link_el.has_attr("href"):
-                href = link_el["href"]
-                job_link = f"https://www.indeed.com{href}" if href.startswith("/") else href
-
-            if not title or not company:
-                continue
-
-            jobs.append({
-                "id": _make_id("indeed", title, company, loc),
-                "title": title,
-                "company": company,
-                "location": loc,
-                "url": job_link,
-                "source": "indeed",
-                "description": "",
-                "salary": "",
-                "tags": [query],
-            })
-
-        logger.info(f"Indeed: found {len(jobs)} jobs for '{query}'")
-    except Exception as e:
-        logger.error(f"Indeed scraper error for '{query}': {e}")
-    return jobs
-
-
-# ---------------------------------------------------------------------------
-# Google Jobs (via SerpAPI-style scraping of Google search)
-# ---------------------------------------------------------------------------
-def scrape_google_jobs(query: str) -> list[dict]:
-    """Scrape Google search for job postings on major career pages."""
-    jobs = []
-    try:
-        search_query = quote_plus(
-            f"{query} jobs USA visa sponsorship site:lever.co OR site:greenhouse.io OR site:boards.greenhouse.io OR site:jobs.lever.co"
-        )
-        url = f"https://www.google.com/search?q={search_query}&num=20"
-        resp = requests.get(url, headers=HEADERS, timeout=15)
-        if resp.status_code != 200:
-            logger.warning(f"Google returned {resp.status_code}")
-            return jobs
-
-        soup = BeautifulSoup(resp.text, "html.parser")
-        for result in soup.find_all("div", class_="g"):
-            link_el = result.find("a")
-            title_el = result.find("h3")
-            if not link_el or not title_el:
-                continue
-            link = link_el.get("href", "")
-            title = title_el.get_text(strip=True)
-            snippet_el = result.find("span", class_="aCOpRe")
-            snippet = snippet_el.get_text(strip=True) if snippet_el else ""
-
-            company = _extract_company_from_url(link)
-
-            jobs.append({
-                "id": _make_id("google", title, company, "US"),
-                "title": title,
-                "company": company,
-                "location": "United States",
-                "url": link,
-                "source": "google",
-                "description": snippet,
-                "salary": "",
-                "tags": [query],
-            })
-
-        logger.info(f"Google Jobs: found {len(jobs)} jobs for '{query}'")
-    except Exception as e:
-        logger.error(f"Google scraper error for '{query}': {e}")
-    return jobs
-
-
-def _extract_company_from_url(url: str) -> str:
-    """Try to extract company name from lever/greenhouse URLs."""
-    url_lower = url.lower()
-    for domain in ["jobs.lever.co/", "boards.greenhouse.io/"]:
-        if domain in url_lower:
-            idx = url_lower.index(domain) + len(domain)
-            slug = url[idx:].split("/")[0]
-            return slug.replace("-", " ").title()
-    return "Unknown"
 
 
 # ---------------------------------------------------------------------------
@@ -245,15 +221,35 @@ def scrape_remoteok() -> list[dict]:
 
             company = item.get("company", "")
             title = item.get("position", "")
+            loc = item.get("location", "Remote")
+
+            # Extract salary if available
+            salary = ""
+            sal_min = item.get("salary_min")
+            sal_max = item.get("salary_max")
+            if sal_min and sal_max:
+                salary = f"${int(sal_min):,} - ${int(sal_max):,}"
+            elif sal_min:
+                salary = f"${int(sal_min):,}+"
+
+            # Clean HTML from description
+            desc_html = item.get("description", "")
+            if desc_html:
+                desc_soup = BeautifulSoup(desc_html, "html.parser")
+                desc_text = desc_soup.get_text(separator=" ", strip=True)[:5000]
+            else:
+                desc_text = ""
+
             jobs.append({
-                "id": _make_id("remoteok", title, company, "Remote"),
+                "id": _make_id(title, company, loc),
                 "title": title,
                 "company": company,
-                "location": item.get("location", "Remote"),
+                "location": loc,
                 "url": item.get("url", f"https://remoteok.com/remote-jobs/{item.get('slug', '')}"),
                 "source": "remoteok",
-                "description": item.get("description", ""),
-                "salary": "",
+                "description": desc_text,
+                "salary": salary,
+                "date_posted": datetime.fromtimestamp(item.get("epoch", 0), tz=timezone.utc).isoformat() if item.get("epoch") else datetime.now(timezone.utc).isoformat(),
                 "tags": tags_raw,
             })
 
@@ -288,23 +284,19 @@ def scrape_jobright(query: str) -> list[dict]:
         if not cards:
             cards = soup.find_all("a", class_=lambda c: c and "job" in c.lower())
         if not cards:
-            # Fallback: parse any structured job-like elements
             cards = soup.find_all("div", class_=lambda c: c and ("card" in (c or "").lower() or "job" in (c or "").lower()))
 
         for card in cards:
-            # Try to extract title
             title_el = (
                 card.find("h2") or card.find("h3")
                 or card.find("span", class_=lambda c: c and "title" in (c or "").lower())
                 or card.find("div", class_=lambda c: c and "title" in (c or "").lower())
             )
-            # Try to extract company
             company_el = (
                 card.find("span", class_=lambda c: c and "company" in (c or "").lower())
                 or card.find("div", class_=lambda c: c and "company" in (c or "").lower())
                 or card.find("p")
             )
-            # Try to extract location
             location_el = (
                 card.find("span", class_=lambda c: c and "location" in (c or "").lower())
                 or card.find("div", class_=lambda c: c and "location" in (c or "").lower())
@@ -324,7 +316,7 @@ def scrape_jobright(query: str) -> list[dict]:
                 continue
 
             jobs.append({
-                "id": _make_id("jobright", title, company, loc),
+                "id": _make_id(title, company, loc),
                 "title": title,
                 "company": company,
                 "location": loc,
@@ -332,6 +324,7 @@ def scrape_jobright(query: str) -> list[dict]:
                 "source": "jobright",
                 "description": "",
                 "salary": "",
+                "date_posted": datetime.now(timezone.utc).isoformat(),
                 "tags": [query],
             })
 
@@ -342,77 +335,254 @@ def scrape_jobright(query: str) -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
-# Hiring Cafe (hiring.cafe — aggregated job board)
+# Wellfound (formerly AngelList Talent) — startup jobs, often sponsor-friendly
 # ---------------------------------------------------------------------------
-def scrape_hiring_cafe(query: str) -> list[dict]:
-    """Scrape Hiring Cafe search results."""
+def scrape_wellfound(query: str) -> list[dict]:
+    """Scrape Wellfound (AngelList) for startup jobs."""
     jobs = []
     try:
-        encoded_query = quote_plus(query)
-        url = (
-            f"https://hiring.cafe/jobs"
-            f"?query={encoded_query}&location=United+States"
-        )
+        slug = query.lower().replace(" ", "-").replace("/", "-")
+        url = f"https://wellfound.com/role/l/r/{slug}/united-states"
         resp = requests.get(url, headers=HEADERS, timeout=15)
         if resp.status_code != 200:
-            logger.warning(f"Hiring Cafe returned {resp.status_code} for '{query}'")
+            logger.warning(f"Wellfound returned {resp.status_code} for '{query}'")
             return jobs
 
         soup = BeautifulSoup(resp.text, "html.parser")
 
-        # Hiring Cafe renders job listings — try flexible selectors
-        cards = soup.find_all("div", attrs={"data-testid": "job-card"})
+        # Wellfound uses startup-styled listing cards
+        cards = soup.find_all("div", class_=lambda c: c and "styles_result" in (c or ""))
         if not cards:
-            cards = soup.find_all("article")
+            cards = soup.find_all("div", class_=lambda c: c and ("job" in (c or "").lower() or "listing" in (c or "").lower()))
         if not cards:
-            cards = soup.find_all("div", class_=lambda c: c and ("card" in (c or "").lower() or "job" in (c or "").lower() or "listing" in (c or "").lower()))
-        if not cards:
-            # Try tr elements for table-based layouts
-            cards = soup.find_all("tr", class_=lambda c: c and "job" in (c or "").lower())
+            cards = soup.find_all("a", href=lambda h: h and "/jobs/" in (h or ""))
 
         for card in cards:
-            title_el = (
-                card.find("h2") or card.find("h3")
-                or card.find("a", class_=lambda c: c and "title" in (c or "").lower())
-                or card.find("span", class_=lambda c: c and "title" in (c or "").lower())
-            )
+            title_el = card.find("h2") or card.find("h3") or card.find("a")
             company_el = (
-                card.find("span", class_=lambda c: c and "company" in (c or "").lower())
-                or card.find("div", class_=lambda c: c and "company" in (c or "").lower())
+                card.find("h2", class_=lambda c: c and "company" in (c or "").lower())
+                or card.find("span", class_=lambda c: c and "company" in (c or "").lower())
             )
-            location_el = (
-                card.find("span", class_=lambda c: c and "location" in (c or "").lower())
-                or card.find("div", class_=lambda c: c and "location" in (c or "").lower())
-            )
+            location_el = card.find("span", class_=lambda c: c and "location" in (c or "").lower())
+            salary_el = card.find("span", class_=lambda c: c and "salary" in (c or "").lower() or "compensation" in (c or "").lower())
 
             title = title_el.get_text(strip=True) if title_el else ""
             company = company_el.get_text(strip=True) if company_el else ""
-            loc = location_el.get_text(strip=True) if location_el else ""
+            loc = location_el.get_text(strip=True) if location_el else "United States"
+            salary = salary_el.get_text(strip=True) if salary_el else ""
 
             link = ""
             link_el = card.find("a", href=True)
             if link_el:
                 href = link_el["href"]
-                link = href if href.startswith("http") else f"https://hiring.cafe{href}"
+                link = href if href.startswith("http") else f"https://wellfound.com{href}"
 
             if not title:
                 continue
 
             jobs.append({
-                "id": _make_id("hiringcafe", title, company, loc),
+                "id": _make_id(title, company, loc),
                 "title": title,
                 "company": company,
                 "location": loc,
                 "url": link,
-                "source": "hiringcafe",
+                "source": "wellfound",
                 "description": "",
-                "salary": "",
+                "salary": salary,
+                "date_posted": datetime.now(timezone.utc).isoformat(),
                 "tags": [query],
             })
 
-        logger.info(f"Hiring Cafe: found {len(jobs)} jobs for '{query}'")
+        logger.info(f"Wellfound: found {len(jobs)} jobs for '{query}'")
     except Exception as e:
-        logger.error(f"Hiring Cafe scraper error for '{query}': {e}")
+        logger.error(f"Wellfound scraper error for '{query}': {e}")
+    return jobs
+
+
+# ---------------------------------------------------------------------------
+# MyVisaJobs — dedicated H1B / visa sponsorship job data
+# ---------------------------------------------------------------------------
+def scrape_myvisajobs(query: str) -> list[dict]:
+    """Scrape MyVisaJobs.com for H1B-sponsored positions."""
+    jobs = []
+    try:
+        encoded_query = quote_plus(query)
+        url = f"https://www.myvisajobs.com/Search_Jobs.aspx?q={encoded_query}"
+        resp = requests.get(url, headers=HEADERS, timeout=15)
+        if resp.status_code != 200:
+            logger.warning(f"MyVisaJobs returned {resp.status_code} for '{query}'")
+            return jobs
+
+        soup = BeautifulSoup(resp.text, "html.parser")
+
+        # MyVisaJobs uses table-based layout for results
+        rows = soup.find_all("tr", class_=lambda c: c and ("tblrow" in (c or "").lower() or "odd" in (c or "").lower() or "even" in (c or "").lower()))
+        if not rows:
+            # Fallback: try finding any table with job-like data
+            table = soup.find("table", {"id": lambda x: x and "job" in (x or "").lower()})
+            if table:
+                rows = table.find_all("tr")[1:]  # skip header
+
+        for row in rows:
+            cells = row.find_all("td")
+            if len(cells) < 3:
+                continue
+
+            link_el = row.find("a", href=True)
+            title = link_el.get_text(strip=True) if link_el else cells[0].get_text(strip=True)
+            company = cells[1].get_text(strip=True) if len(cells) > 1 else ""
+            loc = cells[2].get_text(strip=True) if len(cells) > 2 else ""
+
+            link = ""
+            if link_el:
+                href = link_el["href"]
+                link = href if href.startswith("http") else f"https://www.myvisajobs.com/{href}"
+
+            if not title:
+                continue
+
+            jobs.append({
+                "id": _make_id(title, company, loc),
+                "title": title,
+                "company": company,
+                "location": loc,
+                "url": link,
+                "source": "myvisajobs",
+                "description": "",
+                "salary": "",
+                "date_posted": datetime.now(timezone.utc).isoformat(),
+                # These are all from H1B data — mark as likely sponsors
+                "sponsorship_status": "likely",
+                "is_h1b_sponsor": True,
+                "tags": [query, "h1b-verified"],
+            })
+
+        logger.info(f"MyVisaJobs: found {len(jobs)} jobs for '{query}'")
+    except Exception as e:
+        logger.error(f"MyVisaJobs scraper error for '{query}': {e}")
+    return jobs
+
+
+# ---------------------------------------------------------------------------
+# SimplifyJobs GitHub — curated new grad & intern lists
+# ---------------------------------------------------------------------------
+def scrape_simplify_github() -> list[dict]:
+    """Fetch curated job lists from SimplifyJobs GitHub repositories.
+
+    These repos are community-maintained lists of verified intern and new grad
+    positions with rich metadata: date_posted, sponsorship status, degree
+    requirements, and active/closed status.
+    """
+    from datetime import datetime, timedelta, timezone
+
+    jobs = []
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
+    cutoff_ts = int(cutoff.timestamp())
+
+    repos = [
+        {
+            "url": "https://raw.githubusercontent.com/SimplifyJobs/Summer2025-Internships/dev/.github/scripts/listings.json",
+            "tag": "internship",
+        },
+        {
+            "url": "https://raw.githubusercontent.com/SimplifyJobs/New-Grad-Positions/dev/.github/scripts/listings.json",
+            "tag": "new-grad",
+        },
+    ]
+
+    for repo in repos:
+        repo_count = 0
+        try:
+            resp = requests.get(repo["url"], headers=HEADERS, timeout=15)
+            if resp.status_code != 200:
+                logger.warning(f"SimplifyJobs GitHub returned {resp.status_code} for {repo['tag']}")
+                continue
+
+            data = resp.json()
+            if not isinstance(data, list):
+                continue
+
+            for item in data:
+                title = item.get("title", "") or item.get("role", "")
+                company = item.get("company_name", "") or item.get("company", "")
+                locations = item.get("locations", [])
+                loc = ", ".join(locations) if isinstance(locations, list) else str(locations)
+                link = item.get("url", "") or item.get("application_link", "")
+
+                # --- Filter: must be active ---
+                if item.get("is_closed") or item.get("active") is False:
+                    continue
+
+                if not title or not company:
+                    continue
+
+                # --- Filter: posted in last 24 hours ---
+                date_posted_ts = item.get("date_posted", 0)
+                if date_posted_ts and date_posted_ts < cutoff_ts:
+                    continue
+
+                # Convert unix timestamp to ISO string
+                date_posted_str = ""
+                if date_posted_ts:
+                    date_posted_str = datetime.fromtimestamp(
+                        date_posted_ts, tz=timezone.utc
+                    ).isoformat()
+
+                # --- Filter: skip PhD-only roles ---
+                degrees = item.get("degrees", [])
+                if degrees:
+                    degrees_lower = [d.lower() for d in degrees]
+                    # If ONLY PhD/doctorate listed, skip
+                    has_phd_only = all(
+                        "phd" in d or "doctor" in d or "postdoc" in d
+                        for d in degrees_lower
+                    )
+                    if has_phd_only:
+                        continue
+
+                # --- Filter: sponsorship ---
+                sponsorship_raw = (item.get("sponsorship") or "").lower()
+                # "Does Sponsor" = F1 friendly, "Doesn't Sponsor" = reject, "Other"/"" = unknown
+                if "doesn't sponsor" in sponsorship_raw or "does not sponsor" in sponsorship_raw:
+                    continue  # Skip — won't hire F1
+
+                is_sponsor = "does sponsor" in sponsorship_raw
+                sponsorship_status = "likely" if is_sponsor else "unknown"
+
+                # Check relevance to our target roles
+                title_lower = title.lower()
+                relevant = any(kw in title_lower for kw in [
+                    "data", "machine learning", "ml", "ai", "software",
+                    "sde", "swe", "engineer", "scientist", "nlp",
+                    "deep learning", "computer vision", "research",
+                ])
+                if not relevant:
+                    continue
+
+                tags = [repo["tag"]]
+                if is_sponsor:
+                    tags.append("f1-friendly")
+
+                repo_count += 1
+                jobs.append({
+                    "id": _make_id(title, company, loc),
+                    "title": title,
+                    "company": company,
+                    "location": loc if loc else "United States",
+                    "url": link,
+                    "source": "simplify",
+                    "description": "",
+                    "salary": "",
+                    "date_posted": date_posted_str,
+                    "sponsorship_status": sponsorship_status,
+                    "is_h1b_sponsor": is_sponsor,
+                    "tags": tags,
+                })
+
+            logger.info(f"SimplifyJobs ({repo['tag']}): found {repo_count} jobs posted in last 24h")
+        except Exception as e:
+            logger.error(f"SimplifyJobs GitHub error for {repo['tag']}: {e}")
+
     return jobs
 
 
@@ -423,21 +593,23 @@ def scrape_all() -> list[dict]:
     """Run all scrapers and return combined job list."""
     all_jobs = []
 
+    # Per-query scrapers: LinkedIn, Jobright, Wellfound, MyVisaJobs
     for query in SEARCH_QUERIES:
         all_jobs.extend(scrape_linkedin(query))
         _polite_delay()
-        all_jobs.extend(scrape_indeed(query))
-        _polite_delay()
-        all_jobs.extend(scrape_google_jobs(query))
-        _polite_delay()
         all_jobs.extend(scrape_jobright(query))
         _polite_delay()
-        all_jobs.extend(scrape_hiring_cafe(query))
+        all_jobs.extend(scrape_wellfound(query))
+        _polite_delay()
+        all_jobs.extend(scrape_myvisajobs(query))
         _polite_delay()
 
+    # One-shot scrapers (not per-query)
     all_jobs.extend(scrape_remoteok())
+    _polite_delay()
+    all_jobs.extend(scrape_simplify_github())
 
-    # Deduplicate by id
+    # Deduplicate by ID (now source-agnostic)
     seen_ids = set()
     unique_jobs = []
     for job in all_jobs:
@@ -445,5 +617,9 @@ def scrape_all() -> list[dict]:
             seen_ids.add(job["id"])
             unique_jobs.append(job)
 
-    logger.info(f"Total unique jobs scraped: {len(unique_jobs)}")
+    logger.info(f"Total unique jobs scraped: {len(unique_jobs)} (from {len(all_jobs)} raw)")
+
+    # Enrich: fetch descriptions for top jobs that lack them
+    unique_jobs = enrich_descriptions(unique_jobs, max_fetch=40)
+
     return unique_jobs

@@ -73,6 +73,20 @@ SENIOR_KEYWORDS = [
     "7+ years", "6+ years", "5+ years",
 ]
 
+# --- PhD keywords to EXCLUDE (F1 student without PhD) ---
+PHD_REQUIRED_KEYWORDS = [
+    "phd required", "ph.d. required", "ph.d required",
+    "doctorate required", "doctoral required",
+    "requires phd", "requires ph.d",
+    "phd only", "ph.d. only",
+    "must have phd", "must have ph.d",
+]
+
+# These in TITLE mean it's a PhD-track role — reject
+PHD_TITLE_KEYWORDS = [
+    "phd", "ph.d", "postdoc", "post-doc", "postdoctoral",
+]
+
 # --- Beginner-level keywords to PRIORITIZE ---
 INTERN_KEYWORDS = [
     "intern", "internship", "co-op", "coop",

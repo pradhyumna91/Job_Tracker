@@ -27,6 +27,7 @@ def init_db():
             sponsorship_status TEXT DEFAULT 'unknown',
             is_h1b_sponsor INTEGER DEFAULT 0,
             tags TEXT,
+            date_posted TEXT,
             first_seen TEXT NOT NULL,
             last_seen TEXT NOT NULL,
             status TEXT DEFAULT 'new',
@@ -34,6 +35,11 @@ def init_db():
             notes TEXT
         )
     """)
+    # Migration: add date_posted column if table already exists without it
+    try:
+        conn.execute("ALTER TABLE jobs ADD COLUMN date_posted TEXT")
+    except sqlite3.OperationalError:
+        pass  # column already exists
     conn.execute("""
         CREATE TABLE IF NOT EXISTS scan_log (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -75,8 +81,8 @@ def insert_job(job: dict) -> bool:
     conn.execute(
         """INSERT INTO jobs
            (id, title, company, location, url, source, description, salary,
-            sponsorship_status, is_h1b_sponsor, tags, first_seen, last_seen)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            sponsorship_status, is_h1b_sponsor, tags, date_posted, first_seen, last_seen)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         (
             job_id,
             job.get("title", ""),
@@ -89,6 +95,7 @@ def insert_job(job: dict) -> bool:
             job.get("sponsorship_status", "unknown"),
             1 if job.get("is_h1b_sponsor") else 0,
             json.dumps(job.get("tags", [])),
+            job.get("date_posted", ""),
             now,
             now,
         ),

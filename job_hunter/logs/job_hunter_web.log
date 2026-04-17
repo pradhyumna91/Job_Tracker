@@ -120,3 +120,131 @@
 2026-04-16 13:40:32,137 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 13:40:32] "GET / HTTP/1.1" 200 -
 2026-04-16 13:40:32,329 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 13:40:32] "GET /api/stats HTTP/1.1" 200 -
 2026-04-16 13:40:32,331 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 13:40:32] "GET /api/jobs?filter=all&search= HTTP/1.1" 200 -
+2026-04-16 13:50:41,292 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 13:50:41] "GET / HTTP/1.1" 200 -
+2026-04-16 13:50:41,471 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 13:50:41] "GET /api/stats HTTP/1.1" 200 -
+2026-04-16 13:50:41,474 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 13:50:41] "GET /api/jobs?filter=all&search= HTTP/1.1" 200 -
+2026-04-16 13:51:25,539 [werkzeug] INFO:  * Detected change in '/Users/skipper/Courses/Projects/Machine Learning -1/job_hunter/scrapers.py', reloading
+2026-04-16 13:51:25,626 [werkzeug] INFO:  * Restarting with stat
+2026-04-16 13:51:25,860 [werkzeug] WARNING:  * Debugger is active!
+2026-04-16 13:51:25,875 [werkzeug] INFO:  * Debugger PIN: 100-932-263
+2026-04-16 13:56:44,217 [werkzeug] INFO:  * Detected change in '/Users/skipper/Courses/Projects/Machine Learning -1/job_hunter/filters.py', reloading
+2026-04-16 13:56:44,282 [werkzeug] INFO:  * Restarting with stat
+2026-04-16 13:56:44,595 [werkzeug] WARNING:  * Debugger is active!
+2026-04-16 13:56:44,606 [werkzeug] INFO:  * Debugger PIN: 100-932-263
+2026-04-16 13:57:21,654 [werkzeug] INFO:  * Detected change in '/Users/skipper/Courses/Projects/Machine Learning -1/job_hunter/dashboard.py', reloading
+2026-04-16 13:57:21,731 [werkzeug] INFO:  * Restarting with stat
+2026-04-16 13:57:21,943 [werkzeug] WARNING:  * Debugger is active!
+2026-04-16 13:57:21,956 [werkzeug] INFO:  * Debugger PIN: 100-932-263
+2026-04-16 13:58:03,074 [werkzeug] INFO:  * Detected change in '/Users/skipper/Courses/Projects/Machine Learning -1/job_hunter/main.py', reloading
+2026-04-16 13:58:03,123 [werkzeug] INFO:  * Restarting with stat
+2026-04-16 13:58:03,313 [werkzeug] WARNING:  * Debugger is active!
+2026-04-16 13:58:03,323 [werkzeug] INFO:  * Debugger PIN: 100-932-263
+2026-04-16 14:27:21,014 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 14:27:21] "GET / HTTP/1.1" 200 -
+2026-04-16 14:27:21,271 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 14:27:21] "GET /api/stats HTTP/1.1" 200 -
+2026-04-16 14:27:21,280 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 14:27:21] "GET /api/jobs?filter=all&search= HTTP/1.1" 200 -
+2026-04-16 14:29:48,789 [werkzeug] INFO:  * Detected change in '/Users/skipper/Courses/Projects/Machine Learning -1/job_hunter/filters.py', reloading
+2026-04-16 14:29:48,881 [werkzeug] INFO:  * Restarting with stat
+2026-04-16 14:29:49,098 [werkzeug] WARNING:  * Debugger is active!
+2026-04-16 14:29:49,108 [werkzeug] INFO:  * Debugger PIN: 100-932-263
+2026-04-16 14:29:59,430 [werkzeug] INFO:  * Detected change in '/Users/skipper/Courses/Projects/Machine Learning -1/job_hunter/filters.py', reloading
+2026-04-16 14:29:59,481 [werkzeug] INFO:  * Restarting with stat
+2026-04-16 14:29:59,683 [werkzeug] WARNING:  * Debugger is active!
+2026-04-16 14:29:59,691 [werkzeug] INFO:  * Debugger PIN: 100-932-263
+2026-04-16 14:30:07,921 [werkzeug] INFO:  * Detected change in '/Users/skipper/Courses/Projects/Machine Learning -1/job_hunter/filters.py', reloading
+2026-04-16 14:30:07,975 [werkzeug] INFO:  * Restarting with stat
+2026-04-16 14:30:08,190 [werkzeug] WARNING:  * Debugger is active!
+2026-04-16 14:30:08,202 [werkzeug] INFO:  * Debugger PIN: 100-932-263
+2026-04-16 14:38:27,246 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 14:38:27] "GET / HTTP/1.1" 200 -
+2026-04-16 14:38:27,392 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 14:38:27] "GET /api/stats HTTP/1.1" 200 -
+2026-04-16 14:38:27,404 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 14:38:27] "GET /api/jobs?filter=all&search= HTTP/1.1" 200 -
+2026-04-16 14:48:19,170 [werkzeug] INFO:  * Detected change in '/Users/skipper/Courses/Projects/Machine Learning -1/job_hunter/config.py', reloading
+2026-04-16 14:48:19,202 [werkzeug] INFO:  * Restarting with stat
+2026-04-16 14:48:19,382 [werkzeug] WARNING:  * Debugger is active!
+2026-04-16 14:48:19,392 [werkzeug] INFO:  * Debugger PIN: 100-932-263
+2026-04-16 14:49:31,649 [werkzeug] INFO:  * Detected change in '/Users/skipper/Courses/Projects/Machine Learning -1/job_hunter/db.py', reloading
+2026-04-16 14:49:31,741 [werkzeug] INFO:  * Restarting with stat
+2026-04-16 14:49:31,975 [werkzeug] WARNING:  * Debugger is active!
+2026-04-16 14:49:31,984 [werkzeug] INFO:  * Debugger PIN: 100-932-263
+2026-04-16 14:49:42,291 [werkzeug] INFO:  * Detected change in '/Users/skipper/Courses/Projects/Machine Learning -1/job_hunter/db.py', reloading
+2026-04-16 14:49:42,321 [werkzeug] INFO:  * Restarting with stat
+2026-04-16 14:49:42,505 [werkzeug] WARNING:  * Debugger is active!
+2026-04-16 14:49:42,512 [werkzeug] INFO:  * Debugger PIN: 100-932-263
+2026-04-16 15:52:46,064 [werkzeug] INFO:  * Detected change in '/Users/skipper/Courses/Projects/Machine Learning -1/job_hunter/scrapers.py', reloading
+2026-04-16 15:52:46,106 [werkzeug] INFO:  * Restarting with stat
+2026-04-16 15:52:46,305 [werkzeug] WARNING:  * Debugger is active!
+2026-04-16 15:52:46,315 [werkzeug] INFO:  * Debugger PIN: 100-932-263
+2026-04-16 17:43:38,796 [werkzeug] INFO:  * Detected change in '/Users/skipper/Courses/Projects/Machine Learning -1/job_hunter/scrapers.py', reloading
+2026-04-16 17:43:38,837 [werkzeug] INFO:  * Restarting with stat
+2026-04-16 17:43:39,078 [werkzeug] WARNING:  * Debugger is active!
+2026-04-16 17:43:39,092 [werkzeug] INFO:  * Debugger PIN: 100-932-263
+2026-04-16 17:43:47,318 [werkzeug] INFO:  * Detected change in '/Users/skipper/Courses/Projects/Machine Learning -1/job_hunter/scrapers.py', reloading
+2026-04-16 17:43:47,349 [werkzeug] INFO:  * Restarting with stat
+2026-04-16 17:43:47,532 [werkzeug] WARNING:  * Debugger is active!
+2026-04-16 17:43:47,543 [werkzeug] INFO:  * Debugger PIN: 100-932-263
+2026-04-16 17:44:01,962 [werkzeug] INFO:  * Detected change in '/Users/skipper/Courses/Projects/Machine Learning -1/job_hunter/scrapers.py', reloading
+2026-04-16 17:44:01,998 [werkzeug] INFO:  * Restarting with stat
+2026-04-16 17:44:02,184 [werkzeug] WARNING:  * Debugger is active!
+2026-04-16 17:44:02,192 [werkzeug] INFO:  * Debugger PIN: 100-932-263
+2026-04-16 17:44:13,560 [werkzeug] INFO:  * Detected change in '/Users/skipper/Courses/Projects/Machine Learning -1/job_hunter/scrapers.py', reloading
+2026-04-16 17:44:13,603 [werkzeug] INFO:  * Restarting with stat
+2026-04-16 17:44:13,779 [werkzeug] WARNING:  * Debugger is active!
+2026-04-16 17:44:13,793 [werkzeug] INFO:  * Debugger PIN: 100-932-263
+2026-04-16 17:44:18,940 [werkzeug] INFO:  * Detected change in '/Users/skipper/Courses/Projects/Machine Learning -1/job_hunter/scrapers.py', reloading
+2026-04-16 17:44:18,970 [werkzeug] INFO:  * Restarting with stat
+2026-04-16 17:44:19,097 [werkzeug] WARNING:  * Debugger is active!
+2026-04-16 17:44:19,103 [werkzeug] INFO:  * Debugger PIN: 100-932-263
+2026-04-16 17:44:28,382 [werkzeug] INFO:  * Detected change in '/Users/skipper/Courses/Projects/Machine Learning -1/job_hunter/scrapers.py', reloading
+2026-04-16 17:44:28,433 [werkzeug] INFO:  * Restarting with stat
+2026-04-16 17:44:28,570 [werkzeug] WARNING:  * Debugger is active!
+2026-04-16 17:44:28,578 [werkzeug] INFO:  * Debugger PIN: 100-932-263
+2026-04-16 17:44:36,812 [werkzeug] INFO:  * Detected change in '/Users/skipper/Courses/Projects/Machine Learning -1/job_hunter/filters.py', reloading
+2026-04-16 17:44:36,849 [werkzeug] INFO:  * Restarting with stat
+2026-04-16 17:44:36,998 [werkzeug] WARNING:  * Debugger is active!
+2026-04-16 17:44:37,008 [werkzeug] INFO:  * Debugger PIN: 100-932-263
+2026-04-16 17:47:19,939 [werkzeug] INFO:  * Detected change in '/Users/skipper/Courses/Projects/Machine Learning -1/job_hunter/filters.py', reloading
+2026-04-16 17:47:19,970 [werkzeug] INFO:  * Restarting with stat
+2026-04-16 17:47:20,168 [werkzeug] WARNING:  * Debugger is active!
+2026-04-16 17:47:20,178 [werkzeug] INFO:  * Debugger PIN: 100-932-263
+2026-04-16 17:48:21,113 [werkzeug] INFO:  * Detected change in '/Users/skipper/Courses/Projects/Machine Learning -1/job_hunter/filters.py', reloading
+2026-04-16 17:48:21,164 [werkzeug] INFO:  * Restarting with stat
+2026-04-16 17:48:21,355 [werkzeug] WARNING:  * Debugger is active!
+2026-04-16 17:48:21,364 [werkzeug] INFO:  * Debugger PIN: 100-932-263
+2026-04-16 17:49:01,618 [werkzeug] INFO:  * Detected change in '/Users/skipper/Courses/Projects/Machine Learning -1/job_hunter/filters.py', reloading
+2026-04-16 17:49:01,667 [werkzeug] INFO:  * Restarting with stat
+2026-04-16 17:49:01,887 [werkzeug] WARNING:  * Debugger is active!
+2026-04-16 17:49:01,896 [werkzeug] INFO:  * Debugger PIN: 100-932-263
+2026-04-16 17:52:20,736 [werkzeug] INFO:  * Detected change in '/Users/skipper/Courses/Projects/Machine Learning -1/job_hunter/main.py', reloading
+2026-04-16 17:52:20,773 [werkzeug] INFO:  * Restarting with stat
+2026-04-16 17:52:21,019 [werkzeug] WARNING:  * Debugger is active!
+2026-04-16 17:52:21,033 [werkzeug] INFO:  * Debugger PIN: 100-932-263
+2026-04-16 18:03:05,184 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 18:03:05] "GET /api/stats HTTP/1.1" 200 -
+2026-04-16 18:03:05,197 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 18:03:05] "GET /api/jobs HTTP/1.1" 200 -
+2026-04-16 18:07:47,837 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 18:07:47] "GET / HTTP/1.1" 200 -
+2026-04-16 18:07:48,016 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 18:07:48] "GET /api/stats HTTP/1.1" 200 -
+2026-04-16 18:07:48,019 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 18:07:48] "GET /api/jobs?filter=all&search= HTTP/1.1" 200 -
+2026-04-16 18:08:48,832 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 18:08:48] "GET /api/stats HTTP/1.1" 200 -
+2026-04-16 18:08:48,837 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 18:08:48] "GET /api/jobs?filter=new&search= HTTP/1.1" 200 -
+2026-04-16 18:08:51,647 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 18:08:51] "GET /api/stats HTTP/1.1" 200 -
+2026-04-16 18:08:51,650 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 18:08:51] "GET /api/jobs?filter=h1b&search= HTTP/1.1" 200 -
+2026-04-16 18:08:53,564 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 18:08:53] "GET /api/stats HTTP/1.1" 200 -
+2026-04-16 18:08:53,568 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 18:08:53] "GET /api/jobs?filter=internship&search= HTTP/1.1" 200 -
+2026-04-16 18:08:55,533 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 18:08:55] "GET /api/stats HTTP/1.1" 200 -
+2026-04-16 18:08:55,536 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 18:08:55] "GET /api/jobs?filter=fulltime&search= HTTP/1.1" 200 -
+2026-04-16 18:08:57,240 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 18:08:57] "GET /api/stats HTTP/1.1" 200 -
+2026-04-16 18:08:57,244 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 18:08:57] "GET /api/jobs?filter=all&search= HTTP/1.1" 200 -
+2026-04-16 18:08:59,681 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 18:08:59] "GET /api/stats HTTP/1.1" 200 -
+2026-04-16 18:08:59,685 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 18:08:59] "GET /api/jobs?filter=new&search= HTTP/1.1" 200 -
+2026-04-16 18:09:00,724 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 18:09:00] "GET /api/stats HTTP/1.1" 200 -
+2026-04-16 18:09:00,727 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 18:09:00] "GET /api/jobs?filter=h1b&search= HTTP/1.1" 200 -
+2026-04-16 18:09:27,516 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 18:09:27] "GET /api/jobs HTTP/1.1" 200 -
+2026-04-16 18:09:52,943 [werkzeug] INFO:  * Detected change in '/Users/skipper/Courses/Projects/Machine Learning -1/job_hunter/dashboard.py', reloading
+2026-04-16 18:09:52,997 [werkzeug] INFO:  * Restarting with stat
+2026-04-16 18:09:53,176 [werkzeug] WARNING:  * Debugger is active!
+2026-04-16 18:09:53,185 [werkzeug] INFO:  * Debugger PIN: 100-932-263
+2026-04-16 22:20:51,321 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 22:20:51] "GET / HTTP/1.1" 200 -
+2026-04-16 22:20:51,528 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 22:20:51] "GET /api/stats HTTP/1.1" 200 -
+2026-04-16 22:20:51,531 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 22:20:51] "GET /api/jobs?filter=all&search= HTTP/1.1" 200 -
+2026-04-16 22:28:08,038 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 22:28:08] "GET / HTTP/1.1" 200 -
+2026-04-16 22:28:49,690 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 22:28:49] "GET / HTTP/1.1" 200 -
+2026-04-16 22:28:49,826 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 22:28:49] "GET /api/stats HTTP/1.1" 200 -
+2026-04-16 22:28:49,830 [werkzeug] INFO: 127.0.0.1 - - [16/Apr/2026 22:28:49] "GET /api/jobs?filter=all&search= HTTP/1.1" 200 -

@@ -24,11 +24,11 @@ def _sponsorship_badge(job: dict) -> str:
 def _source_badge(source: str) -> str:
     colors = {
         "linkedin": "blue",
-        "indeed": "magenta",
-        "google": "green",
         "remoteok": "cyan",
         "jobright": "yellow",
-        "hiringcafe": "bright_green",
+        "wellfound": "magenta",
+        "myvisajobs": "green",
+        "simplify": "bright_cyan",
     }
     color = colors.get(source, "white")
     return f"[{color}]{source.title()}[/]"
@@ -72,14 +72,14 @@ def show_jobs(jobs: list[dict] = None, title: str = "Job Listings"):
     table.add_column("Location", width=18)
     table.add_column("Source", width=10)
     table.add_column("Sponsorship", width=14)
-    table.add_column("First Seen", width=16)
+    table.add_column("Posted", width=16)
 
     for i, job in enumerate(jobs, 1):
-        first_seen = job.get("first_seen", "")
-        if first_seen:
+        posted = job.get("date_posted") or job.get("first_seen", "")
+        if posted:
             try:
-                dt = datetime.fromisoformat(first_seen)
-                first_seen = dt.strftime("%m/%d %H:%M")
+                dt = datetime.fromisoformat(posted)
+                posted = dt.strftime("%m/%d %H:%M")
             except ValueError:
                 pass
 
@@ -90,7 +90,7 @@ def show_jobs(jobs: list[dict] = None, title: str = "Job Listings"):
             job.get("location", "")[:20],
             _source_badge(job.get("source", "")),
             _sponsorship_badge(job),
-            first_seen,
+            posted,
         )
 
     console.print(table)

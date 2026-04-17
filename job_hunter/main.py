@@ -51,18 +51,20 @@ def run_scan():
     console.print(f"[bold]Scan started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/]")
     console.print(f"[bold cyan]{'='*60}[/]\n")
 
-    # Step 1: Scrape
-    console.print("[bold]Step 1/4:[/] Scraping job boards...")
+    # Step 1: Scrape + enrich descriptions
+    console.print("[bold]Step 1/3:[/] Scraping job boards + fetching descriptions...")
+    console.print("  [dim]Sources: LinkedIn, Jobright, Wellfound, MyVisaJobs, RemoteOK, SimplifyJobs[/dim]")
     raw_jobs = scrape_all()
-    console.print(f"  Found [bold]{len(raw_jobs)}[/] raw listings\n")
+    console.print(f"  Found [bold]{len(raw_jobs)}[/] unique listings\n")
 
-    # Step 2: Filter
-    console.print("[bold]Step 2/4:[/] Filtering for relevant roles & sponsorship...")
+    # Step 2: Filter (role + seniority + H1B sponsorship)
+    console.print("[bold]Step 2/3:[/] Filtering for relevant roles & sponsorship...")
+    console.print("  [dim]Checking against H1B employer database + description keywords[/dim]")
     filtered_jobs = filter_jobs(raw_jobs)
     console.print(f"  [bold]{len(filtered_jobs)}[/] jobs passed filters\n")
 
-    # Step 3: Store & deduplicate
-    console.print("[bold]Step 3/4:[/] Saving to database...")
+    # Step 3: Store, deduplicate & notify
+    console.print("[bold]Step 3/3:[/] Saving to database & notifying...")
     new_count = 0
     new_jobs = []
     for job in filtered_jobs:
@@ -72,10 +74,8 @@ def run_scan():
             new_jobs.append(job)
 
     log_scan("all", "all_queries", len(raw_jobs), new_count)
-    console.print(f"  [bold green]{new_count}[/] new jobs added (out of {len(filtered_jobs)} filtered)\n")
+    console.print(f"  [bold green]{new_count}[/] new jobs added (out of {len(filtered_jobs)} filtered)")
 
-    # Step 4: Notify
-    console.print("[bold]Step 4/4:[/] Sending notifications...")
     if new_jobs:
         notify_new_jobs(new_jobs)
         console.print(f"  [bold green]Notified about {len(new_jobs)} new jobs![/]\n")
@@ -99,7 +99,7 @@ def export_csv():
     output_path = Path(__file__).parent / f"jobs_export_{datetime.now().strftime('%Y%m%d_%H%M')}.csv"
     fieldnames = [
         "title", "company", "location", "source", "url",
-        "sponsorship_status", "is_h1b_sponsor", "first_seen", "status", "applied",
+        "sponsorship_status", "is_h1b_sponsor", "date_posted", "first_seen", "status", "applied",
     ]
 
     with open(output_path, "w", newline="") as f:
