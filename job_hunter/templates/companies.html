@@ -26,11 +26,13 @@
        Roles that say they won't sponsor a visa are left out.</p>
     {% else %}
     <h2>Companies hiring recent grads on OPT</h2>
-    <p>Full-time roles posted more than {{ fresh_hours }} hours ago where the posting shows it hires
+    <p>Every full-time role where the posting shows it hires
        <strong>recent graduates</strong> and the company <strong>considers international students</strong>
        (mentions OPT, CPT, F-1 or visa sponsorship, or is a known H-1B sponsor).
        Roles that need a security clearance or citizenship are left out, and so are roles that
-       start before <strong id="earliestStart"></strong>.</p>
+       start before <strong id="earliestStart"></strong>.
+       Roles posted in the last {{ fresh_hours }} hours are marked
+       <span class="chip chip-new">NEW</span> and their companies are listed first.</p>
     {% endif %}
 </div>
 
@@ -190,7 +192,12 @@
             ? `<a href="${escHtml(r.url)}" target="_blank" rel="noopener">${escHtml(r.title)}</a>`
             : escHtml(r.title);
         const s = r.signals;
-        let signalHtml = chips(s.grad, "grad") + chips(s.intl.filter(x => x !== "sponsors H-1B"), "intl");
+        // The OPT page now includes just-posted roles, so mark them — on the
+        // fresh page every role is new and the badge would be noise.
+        const freshBadge = (VIEW === "opt" && r.is_fresh)
+            ? '<span class="chip chip-new">NEW</span>' : "";
+        let signalHtml = freshBadge
+            + chips(s.grad, "grad") + chips(s.intl.filter(x => x !== "sponsors H-1B"), "intl");
         if (VIEW === "opt" || s.start.month || s.start.early) {
             signalHtml += `<span class="chip ${s.start.early ? "warn" : "start"}">${escHtml(s.start.label)}</span>`;
         }

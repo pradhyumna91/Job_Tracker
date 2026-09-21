@@ -163,6 +163,61 @@ EARLIEST_START = "2027-02"
 ENABLE_DESKTOP_NOTIFICATION = True
 ENABLE_SOUND = False
 
+# --- Company groups (dashboard pages) ---
+# Names are matched after normalization (h1b_data.normalize_company) on whole
+# token boundaries, so "amazon" matches "Amazon", "Amazon Web Services (AWS)"
+# and "Amazon.com Inc" — but never "Amazonia Health". Edit these freely.
+
+# Companies where you have a referral. Checked FIRST: a referral outranks
+# everything else, so a company here never appears on another page even if it
+# would also qualify as a target (Cognizant is both).
+REFERRAL_COMPANIES = {
+    "exl", "exl service", "exlservice",
+    "pwc", "pricewaterhousecoopers",
+    "humana",
+    "cognizant",
+    "merck",
+    "synechron",
+    # Deliberately the full name, not "ares": a bare "ares" would also claim
+    # unrelated firms whose name starts with that token.
+    "ares management",
+}
+
+# Referral employers are searched for by name as well as by role. The generic
+# role queries rarely surface them — a bare company name returns that company
+# but mostly irrelevant roles (Facilities, Director), while a role term alone
+# returns the right roles at the wrong companies. Pairing the two, then
+# filtering on company group, is what actually finds them.
+REFERRAL_SEARCH_COMPANIES = [
+    "Merck", "Humana", "Ares Management",
+    "EXL", "PwC", "Synechron", "Cognizant",
+]
+REFERRAL_SEARCH_ROLES = ["Data Scientist", "Software Engineer"]
+
+
+# Large tech and finance employers worth a dedicated page.
+TARGET_COMPANIES = {
+    # Big tech
+    "amazon", "amazon web services", "aws", "google", "alphabet",
+    "microsoft", "apple", "meta", "facebook", "netflix", "nvidia",
+    "tesla", "uber", "lyft", "airbnb", "stripe", "salesforce", "oracle",
+    "ibm", "intel", "cisco", "adobe", "qualcomm", "broadcom", "amd",
+    "snowflake", "databricks", "palantir", "linkedin", "snap", "pinterest",
+    "spotify", "tiktok", "bytedance", "servicenow", "workday", "vmware",
+    "dell", "hp", "hewlett packard enterprise", "sap", "intuit",
+    "openai", "anthropic", "scale ai", "datadog", "cloudflare", "atlassian",
+    "doordash", "instacart", "roblox", "reddit", "discord", "coinbase",
+    # Banks / finance
+    "jpmorgan", "jpmorganchase", "jpmorgan chase", "jp morgan",
+    "goldman sachs", "morgan stanley", "bank of america", "citigroup",
+    "citi", "capital one", "american express", "wells fargo",
+    "visa", "mastercard", "paypal", "block", "robinhood",
+    "blackrock", "fidelity", "charles schwab", "bloomberg",
+    "two sigma", "citadel", "jane street", "point72", "de shaw",
+    "hudson river trading", "jump trading", "bridgewater",
+}
+
+
 # --- Curated H-1B sponsor seed list ---
 # OFFLINE FALLBACK ONLY. When the USCIS index is available (the normal case)
 # this list is not consulted: absence from 31k real employers is better

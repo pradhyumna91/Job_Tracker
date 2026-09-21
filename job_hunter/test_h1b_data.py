@@ -309,5 +309,62 @@ class TestCheckSponsorship(unittest.TestCase):
             self.assertIn(key, job)
 
 
+class TestCompanyGroups(unittest.TestCase):
+    """Company grouping for the three dashboard pages."""
+
+    def test_referral_beats_target(self):
+        # Cognizant is one of the largest H-1B sponsors AND a referral.
+        # The referral is the stronger signal, so it must not show as a target.
+        self.assertEqual(filters.company_group("Cognizant"), "referral")
+
+    def test_named_referrals(self):
+        for name in ("EXL", "PwC", "Humana", "Cognizant", "Merck",
+                     "Merck & Co., Inc.", "Synechron", "Ares Management"):
+            with self.subTest(name=name):
+                self.assertEqual(filters.company_group(name), "referral")
+
+    def test_referral_keys_do_not_over_claim(self):
+        # "ares management" is listed rather than "ares" so unrelated firms
+        # starting with that token aren't swept onto the referral page.
+        for name in ("Ares Capital Corp", "Aresty Institute"):
+            with self.subTest(name=name):
+                self.assertEqual(filters.company_group(name), "other")
+
+    def test_named_targets(self):
+        for name in ("Amazon", "Amazon Web Services (AWS)", "JPMorganChase",
+                     "Goldman Sachs", "Google", "Microsoft"):
+            with self.subTest(name=name):
+                self.assertEqual(filters.company_group(name), "target")
+
+    def test_unlisted_company_falls_to_other(self):
+        for name in ("Bob's Plumbing LLC", "Nue.io", "BeaconFire Inc."):
+            with self.subTest(name=name):
+                self.assertEqual(filters.company_group(name), "other")
+
+    def test_matches_on_token_boundaries_only(self):
+        # Same discipline as sponsor matching: no bare substrings.
+        for name in ("Amazonia Health", "Applelink Systems", "Metabolon",
+                     "Blockchain Capital", "Googol Analytics"):
+            with self.subTest(name=name):
+                self.assertEqual(filters.company_group(name), "other")
+
+    def test_legal_suffixes_do_not_break_matching(self):
+        for name in ("Amazon.com Inc", "Google LLC", "Cognizant Technology "
+                     "Solutions Corp"):
+            with self.subTest(name=name):
+                self.assertIn(filters.company_group(name), ("target", "referral"))
+
+    def test_blank_company(self):
+        self.assertEqual(filters.company_group(""), "other")
+        self.assertEqual(filters.company_group("   "), "other")
+
+    def test_groups_are_a_partition(self):
+        # Every company lands in exactly one group, so the three pages never
+        # show the same job twice.
+        for name in ("Amazon", "Cognizant", "Bob's Plumbing LLC", ""):
+            with self.subTest(name=name):
+                self.assertIn(filters.company_group(name), filters.COMPANY_GROUPS)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

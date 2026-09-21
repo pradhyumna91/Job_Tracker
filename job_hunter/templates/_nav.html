@@ -2,4 +2,11 @@
     <a href="{{ url_for('index') }}" class="{{ 'active' if active_page == 'all' }}">All Jobs</a>
     <a href="{{ url_for('fresh_page') }}" class="{{ 'active' if active_page == 'fresh' }}">Posted in last 48h</a>
     <a href="{{ url_for('opt_page') }}" class="{{ 'active' if active_page == 'opt' }}">OPT &amp; New Grad</a>
+    <span class="nav-sep"></span>
+    <a href="{{ url_for('company_group_page', group='referral') }}"
+       class="{{ 'active' if active_page == 'referral' }}">Referrals</a>
+    <a href="{{ url_for('company_group_page', group='target') }}"
+       class="{{ 'active' if active_page == 'target' }}">Target Companies</a>
+    <a href="{{ url_for('company_group_page', group='other') }}"
+       class="{{ 'active' if active_page == 'other' }}">Other</a>
 </nav>

@@ -9,14 +9,16 @@ import sys
 import time
 from datetime import datetime, timedelta, timezone
 
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, redirect, url_for
 
 from config import (
     LOG_DIR, CHECK_INTERVAL_MINUTES, FRESH_POSTING_HOURS, EARLIEST_START,
     SCAN_TIME_BUDGET_MINUTES, MIN_SCAN_GAP_MINUTES,
 )
 from scrapers import scrape_all
-from filters import filter_jobs, is_internship, candidate_signals
+from filters import (
+    filter_jobs, is_internship, candidate_signals, company_group, COMPANY_GROUPS,
+)
 from db import (
     insert_job, log_scan, get_new_jobs, get_all_jobs, get_stats,
     get_last_scan_time, mark_applied, mark_seen,
@@ -177,7 +179,26 @@ def start_scheduler():
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", company_group="all")
+
+
+# Company pages. Each reuses the main jobs table — with every filter intact —
+# scoped to one company group. The groups partition the jobs: a company lands
+# in exactly one, so nothing is shown twice across the three pages.
+_GROUP_TITLES = {
+    "referral": "Referrals",
+    "target": "Target Companies",
+    "other": "Other Companies",
+}
+
+
+@app.route("/companies/<group>")
+def company_group_page(group):
+    if group not in _GROUP_TITLES:
+        return redirect(url_for("index"))
+    return render_template(
+        "index.html", company_group=group, group_title=_GROUP_TITLES[group]
+    )
 
 
 @app.route("/fresh")
@@ -211,17 +232,47 @@ def _posted_at(job: dict):
     return None
 
 
-def _group_by_company(roles: list[dict]) -> list[dict]:
-    """Group roles into companies, busiest and most recently active first."""
+def _is_opt_suitable(job: dict) -> bool:
+    """Whether a role suits an international student on F-1 / OPT.
+
+    Requires a recent-grad signal, an international / sponsorship signal, no
+    clearance or citizenship blocker, and a start date you could make. This is
+    the same standard the OPT & New Grad page applies.
+    """
+    if is_internship(job) or job.get("sponsorship_status") == "unlikely":
+        return False
+    if isinstance(job.get("tags"), str):
+        try:
+            job["tags"] = json.loads(job["tags"] or "[]")
+        except ValueError:
+            job["tags"] = []
+    signals = candidate_signals(job)
+    return bool(
+        signals["grad"]
+        and signals["intl"]
+        and not signals["blockers"]
+        and not signals["start"]["early"]
+    )
+
+
+def _group_by_company(roles: list[dict], fresh_first: bool = False) -> list[dict]:
+    """Group roles into companies, busiest and most recently active first.
+
+    `fresh_first` floats companies with a just-posted role to the top. The OPT
+    page now includes brand-new roles, and ranking by role count alone would
+    bury a company with one fresh opening under one with many stale ones.
+    """
     companies = {}
     for role in roles:
         name = " ".join(role["company"].split()) or "Company not listed"
         c = companies.setdefault(name.lower(), {
             "company": name, "roles": [],
-            "sponsors_h1b": False, "grad": set(), "intl": set(),
+            "sponsors_h1b": False, "has_fresh": False,
+            "grad": set(), "intl": set(),
         })
         c["roles"].append(role)
         c["sponsors_h1b"] |= bool(role["is_h1b_sponsor"])
+        c["has_fresh"] |= bool(role.get("is_fresh"))
         c["grad"].update(role["signals"]["grad"])
         c["intl"].update(role["signals"]["intl"])
 
@@ -231,7 +282,15 @@ def _group_by_company(roles: list[dict]) -> list[dict]:
         c["latest_posted"] = c["roles"][0]["posted_at"]
         c["grad"], c["intl"] = sorted(c["grad"]), sorted(c["intl"])
         result.append(c)
-    result.sort(key=lambda c: (len(c["roles"]), c["latest_posted"] or ""), reverse=True)
+
+    result.sort(
+        key=lambda c: (
+            (c["has_fresh"] if fresh_first else False),
+            len(c["roles"]),
+            c["latest_posted"] or "",
+        ),
+        reverse=True,
+    )
     return result
 
 
@@ -264,7 +323,11 @@ def api_companies():
             continue
         posted = _posted_at(job)
         is_fresh = posted is not None and posted >= fresh_cutoff
-        if (view == "fresh") != is_fresh:
+        # The fresh page shows only recent postings. The OPT page shows every
+        # eligible role regardless of age — it used to exclude anything newer
+        # than the fresh window, which hid the most actionable roles and meant
+        # checking two pages to see them all.
+        if view == "fresh" and not is_fresh:
             continue
         if job.get("sponsorship_status") == "unlikely":
             hidden["not_sponsoring"] += 1
@@ -304,6 +367,7 @@ def api_companies():
             "is_h1b_sponsor": bool(job.get("is_h1b_sponsor")),
             "applied": bool(job.get("applied")),
             "posted_at": posted.isoformat() if posted else None,
+            "is_fresh": is_fresh,
             "has_description": bool(job.get("description")),
             "signals": signals,
         })
@@ -313,7 +377,8 @@ def api_companies():
         "fresh_hours": FRESH_POSTING_HOURS,
         "earliest_start": EARLIEST_START,
         "role_count": len(roles),
-        "companies": _group_by_company(roles),
+        "companies": _group_by_company(roles, fresh_first=(view == "opt")),
+        "fresh_count": sum(1 for r in roles if r["is_fresh"]),
         "hidden": hidden if view == "opt" else {"not_sponsoring": hidden["not_sponsoring"]},
     })
 
@@ -324,13 +389,15 @@ def api_jobs():
 
     filter          all | new | h1b | fulltime
     max_age_hours   only jobs posted within this many hours (0 / absent = any)
+    company_group   all | referral | target | other
     search          substring match on title, company or location
 
-    max_age_hours is orthogonal to filter, so "H1B friendly, posted in the
-    last 24h" is one request.
+    All four are orthogonal, so "referral companies, H1B friendly, posted in
+    the last 24h" is one request.
     """
     filter_type = request.args.get("filter", "all")  # all, new, h1b, fulltime
     search = request.args.get("search", "").lower()
+    group = request.args.get("company_group", "all")
     try:
         max_age_hours = max(0, int(request.args.get("max_age_hours") or 0))
     except ValueError:
@@ -347,6 +414,12 @@ def api_jobs():
         # listing with no publish date counts from when we first saw it.
         jobs = [j for j in jobs if (_posted_at(j) or datetime.min.replace(
             tzinfo=timezone.utc)) >= cutoff]
+
+    if group in COMPANY_GROUPS:
+        jobs = [j for j in jobs if company_group(j.get("company", "")) == group]
+
+    if filter_type == "opt":
+        jobs = [j for j in jobs if _is_opt_suitable(j)]
 
     # Apply filters on server
     if filter_type == "h1b":

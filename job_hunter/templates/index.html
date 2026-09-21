@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Job Hunter - F1 Student Dashboard</title>
+    <title>Job Hunter - {{ group_title or "F1 Student Dashboard" }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
 </head>
 <body>
@@ -13,9 +13,9 @@
 <header>
     <div class="logo">
         <h1>Job Hunter</h1>
-        <span>F1 Student | New Grad & Entry-Level</span>
+        <span>{{ group_title or "F1 Student | New Grad & Entry-Level" }}</span>
     </div>
-    {% set active_page = "all" %}{% include "_nav.html" %}
+    {% set active_page = company_group if company_group != "all" else "all" %}{% include "_nav.html" %}
     <div class="header-actions">
         <span class="last-scan" id="lastScan">Last scan: never</span>
         <button class="btn btn-export" onclick="exportCSV()">Export CSV</button>
@@ -51,6 +51,7 @@
         <button class="filter-btn" data-filter="new">New</button>
         <button class="filter-btn" data-filter="h1b">H1B Friendly</button>
         <button class="filter-btn" data-filter="fulltime">Full-Time Entry</button>
+        <button class="filter-btn" data-filter="opt" title="Recent-grad role that mentions OPT/F-1/sponsorship, with no clearance or citizenship requirement">OPT Suitable</button>
     </div>
     <div class="filters filters-age">
         <span class="filter-label">Posted</span>
@@ -91,13 +92,17 @@
     let currentFilter = "all";
     let currentSearch = "";
     let currentMaxAge = 0;   // hours; 0 = any time
+    const COMPANY_GROUP = "{{ company_group }}";
     let lastScanIso = null;
     let sortField = "date_posted";
     let sortDir = -1; // descending (newest first)
 
     // ---- API calls ----
     async function fetchJobs(filter = "all", search = "", maxAgeHours = 0) {
-        const params = new URLSearchParams({ filter, search, max_age_hours: maxAgeHours });
+        const params = new URLSearchParams({
+            filter, search, max_age_hours: maxAgeHours,
+            company_group: COMPANY_GROUP,
+        });
         const resp = await fetch(`/api/jobs?${params}`);
         return resp.json();
     }

@@ -12,7 +12,10 @@ from bs4 import BeautifulSoup
 
 from datetime import datetime, timezone
 
-from config import SEARCH_QUERIES, LOCATIONS, EXPERIENCE_LEVEL
+from config import (
+    SEARCH_QUERIES, LOCATIONS, EXPERIENCE_LEVEL,
+    REFERRAL_SEARCH_COMPANIES, REFERRAL_SEARCH_ROLES,
+)
 
 logger = logging.getLogger("job_hunter.scrapers")
 
@@ -636,6 +639,20 @@ def scrape_all(deadline: float = None) -> list[dict]:
         _polite_delay()
         all_jobs.extend(scrape_myvisajobs(query))
         _polite_delay()
+
+    # Referral employers, searched by name + role. LinkedIn only: it is the
+    # one source that reliably returns results for a company-name query, and
+    # this pass is additive, so spending the other three sources on it would
+    # double the scan for nothing.
+    for company in REFERRAL_SEARCH_COMPANIES:
+        if out_of_time():
+            logger.warning("Scan budget exhausted before referral-company pass")
+            break
+        for role in REFERRAL_SEARCH_ROLES:
+            if out_of_time():
+                break
+            all_jobs.extend(scrape_linkedin(f"{company} {role}"))
+            _polite_delay()
 
     # One-shot scrapers (not per-query)
     if not out_of_time():

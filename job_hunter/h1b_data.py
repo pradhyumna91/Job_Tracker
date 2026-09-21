@@ -175,6 +175,17 @@ def normalize_phrase(text: str) -> str:
     return lowered
 
 
+def is_token_prefix(prefix: str, full: str) -> bool:
+    """True when `prefix` matches `full` on whole-token boundaries.
+
+    Whole-token matching is the point: plain substring comparison is what made
+    "ge" match SeatGeek and "ea" match Health Research.
+    """
+    if prefix == full:
+        return True
+    return full.startswith(prefix + " ")
+
+
 def _is_distinctive(key: str) -> bool:
     """Whether a normalized name is specific enough to match on a prefix."""
     tokens = key.split()
@@ -357,7 +368,7 @@ class H1BIndex:
                     return SponsorMatch(True, "curated", matched_name=variant)
                 if _is_distinctive(variant):
                     for seed in self._curated:
-                        if self._is_token_prefix(seed, variant):
+                        if is_token_prefix(seed, variant):
                             return SponsorMatch(True, "curated", matched_name=seed)
 
         return SponsorMatch(False, "none")
@@ -382,13 +393,6 @@ class H1BIndex:
             if entry in windows:
                 return entry
         return None
-
-    @staticmethod
-    def _is_token_prefix(prefix: str, full: str) -> bool:
-        """True when `prefix` matches `full` on whole-token boundaries."""
-        if prefix == full:
-            return True
-        return full.startswith(prefix + " ")
 
     # -- stats -------------------------------------------------------------
 

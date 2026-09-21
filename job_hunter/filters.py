@@ -14,7 +14,8 @@ from config import (
     PHD_TITLE_KEYWORDS,
     EARLIEST_START,
 )
-from h1b_data import lookup_sponsor
+from config import REFERRAL_COMPANIES, TARGET_COMPANIES
+from h1b_data import lookup_sponsor, name_variants, normalize_company, is_token_prefix
 
 logger = logging.getLogger("job_hunter.filters")
 
@@ -55,6 +56,43 @@ def find_negative_signal(text: str) -> "str | None":
 
 def _normalize(text: str) -> str:
     return text.lower().strip()
+
+
+# ---------------------------------------------------------------------------
+# Company grouping (dashboard pages)
+# ---------------------------------------------------------------------------
+
+COMPANY_GROUPS = ("referral", "target", "other")
+
+_REFERRAL_KEYS = {normalize_company(c) for c in REFERRAL_COMPANIES} - {""}
+_TARGET_KEYS = {normalize_company(c) for c in TARGET_COMPANIES} - {""}
+
+
+def _matches_any(company: str, keys: set) -> bool:
+    """Whether a company name matches any key on whole-token boundaries."""
+    for variant in name_variants(company):
+        if variant in keys:
+            return True
+        if any(is_token_prefix(key, variant) for key in keys):
+            return True
+    return False
+
+
+def company_group(company: str) -> str:
+    """Which dashboard page a company belongs to.
+
+    Referrals are checked first and win outright: a referral is the strongest
+    reason to act, so Cognizant shows under Referrals rather than Targets even
+    though it is also one of the largest H-1B sponsors. Every company lands in
+    exactly one group, so the three pages partition the jobs with no overlap.
+    """
+    if not company or not company.strip():
+        return "other"
+    if _matches_any(company, _REFERRAL_KEYS):
+        return "referral"
+    if _matches_any(company, _TARGET_KEYS):
+        return "target"
+    return "other"
 
 
 # --- US State abbreviations and keywords for location filtering ---
