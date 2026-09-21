@@ -103,21 +103,41 @@ def fetch_description(url: str) -> str:
         return ""
 
 
-def enrich_descriptions(jobs: list[dict], max_fetch: int = 50) -> list[dict]:
-    """Fetch descriptions for jobs that don't have one. Capped to avoid slowdowns."""
+def enrich_descriptions(
+    jobs: list[dict], max_fetch: int = 50, deadline: float = None
+) -> list[dict]:
+    """Fetch descriptions for jobs that don't have one.
+
+    Bounded by both `max_fetch` and `deadline` (a time.monotonic() value).
+    The count alone is not enough: job pages are the slowest fetches in a scan
+    — 40 of them have taken over an hour when a host trickles its response.
+    """
     fetched = 0
+    attempted = 0
+    ran_out_of_time = False
+
     for job in jobs:
         if job.get("description"):
             continue
         if fetched >= max_fetch:
             break
+        if deadline is not None and time.monotonic() >= deadline:
+            ran_out_of_time = True
+            break
+        attempted += 1
         desc = fetch_description(job.get("url", ""))
         if desc:
             job["description"] = desc
             fetched += 1
         _short_delay()
 
-    logger.info(f"Enriched {fetched} job descriptions")
+    if ran_out_of_time:
+        logger.warning(
+            "Scan budget exhausted during enrichment — %d fetched from %d attempts",
+            fetched, attempted,
+        )
+    else:
+        logger.info(f"Enriched {fetched} job descriptions")
     return jobs
 
 
@@ -130,8 +150,8 @@ def scrape_linkedin(query: str, location: str = "United States") -> list[dict]:
     try:
         encoded_query = quote_plus(query)
         encoded_loc = quote_plus(location)
-        # LinkedIn f_E: 1=Internship, 2=Entry level. Comma-separated for both.
-        exp_map = {"intern": "&f_E=1", "entry": "&f_E=1%2C2"}
+        # LinkedIn f_E: 1=Internship, 2=Entry level.
+        exp_map = {"intern": "&f_E=1", "entry": "&f_E=2"}
         exp_filter = exp_map.get(EXPERIENCE_LEVEL, "")
         url = (
             f"https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search"
@@ -464,12 +484,12 @@ def scrape_myvisajobs(query: str) -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
-# SimplifyJobs GitHub — curated new grad & intern lists
+# SimplifyJobs GitHub — curated new grad list
 # ---------------------------------------------------------------------------
 def scrape_simplify_github() -> list[dict]:
     """Fetch curated job lists from SimplifyJobs GitHub repositories.
 
-    These repos are community-maintained lists of verified intern and new grad
+    These repos are community-maintained lists of verified new grad
     positions with rich metadata: date_posted, sponsorship status, degree
     requirements, and active/closed status.
     """
@@ -480,10 +500,6 @@ def scrape_simplify_github() -> list[dict]:
     cutoff_ts = int(cutoff.timestamp())
 
     repos = [
-        {
-            "url": "https://raw.githubusercontent.com/SimplifyJobs/Summer2025-Internships/dev/.github/scripts/listings.json",
-            "tag": "internship",
-        },
         {
             "url": "https://raw.githubusercontent.com/SimplifyJobs/New-Grad-Positions/dev/.github/scripts/listings.json",
             "tag": "new-grad",
@@ -589,12 +605,29 @@ def scrape_simplify_github() -> list[dict]:
 # ---------------------------------------------------------------------------
 # Aggregator
 # ---------------------------------------------------------------------------
-def scrape_all() -> list[dict]:
-    """Run all scrapers and return combined job list."""
+def scrape_all(deadline: float = None) -> list[dict]:
+    """Run all scrapers and return combined job list.
+
+    `deadline` is a time.monotonic() value past which no new work is started.
+    It bounds the scan as a whole: requests' own `timeout` only bounds each
+    socket operation, so one slow server can otherwise stall a scan for hours.
+    Work already in flight still finishes, so the budget is a floor, not a cap.
+    """
     all_jobs = []
+    skipped = 0
+
+    def out_of_time() -> bool:
+        return deadline is not None and time.monotonic() >= deadline
 
     # Per-query scrapers: LinkedIn, Jobright, Wellfound, MyVisaJobs
-    for query in SEARCH_QUERIES:
+    for index, query in enumerate(SEARCH_QUERIES):
+        if out_of_time():
+            skipped = len(SEARCH_QUERIES) - index
+            logger.warning(
+                "Scan budget exhausted — skipping %d of %d queries",
+                skipped, len(SEARCH_QUERIES),
+            )
+            break
         all_jobs.extend(scrape_linkedin(query))
         _polite_delay()
         all_jobs.extend(scrape_jobright(query))
@@ -605,9 +638,11 @@ def scrape_all() -> list[dict]:
         _polite_delay()
 
     # One-shot scrapers (not per-query)
-    all_jobs.extend(scrape_remoteok())
-    _polite_delay()
-    all_jobs.extend(scrape_simplify_github())
+    if not out_of_time():
+        all_jobs.extend(scrape_remoteok())
+        _polite_delay()
+    if not out_of_time():
+        all_jobs.extend(scrape_simplify_github())
 
     # Deduplicate by ID (now source-agnostic)
     seen_ids = set()
@@ -620,6 +655,6 @@ def scrape_all() -> list[dict]:
     logger.info(f"Total unique jobs scraped: {len(unique_jobs)} (from {len(all_jobs)} raw)")
 
     # Enrich: fetch descriptions for top jobs that lack them
-    unique_jobs = enrich_descriptions(unique_jobs, max_fetch=40)
+    unique_jobs = enrich_descriptions(unique_jobs, max_fetch=40, deadline=deadline)
 
     return unique_jobs

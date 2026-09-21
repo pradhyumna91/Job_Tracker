@@ -11,6 +11,7 @@ Usage:
     python main.py --dashboard  # Show current dashboard only
     python main.py --export     # Export all jobs to CSV
     python main.py --mark-applied <job_id>  # Mark a job as applied
+    python main.py --backfill-descriptions  # Fetch descriptions for saved jobs missing one
 """
 
 import argparse
@@ -24,10 +25,13 @@ from pathlib import Path
 
 import schedule
 
-from config import CHECK_INTERVAL_MINUTES, LOG_DIR
-from scrapers import scrape_all
-from filters import filter_jobs
-from db import insert_job, log_scan, get_all_jobs, get_stats, mark_applied
+from config import CHECK_INTERVAL_MINUTES, LOG_DIR, SCAN_TIME_BUDGET_MINUTES
+from scrapers import scrape_all, fetch_description, _short_delay
+from filters import filter_jobs, check_sponsorship
+from db import (
+    insert_job, log_scan, get_all_jobs, get_stats, mark_applied,
+    get_jobs_missing_description, update_job_description,
+)
 from notifier import notify_new_jobs
 from dashboard import show_stats, show_new_jobs, show_all_jobs, console
 from rich.panel import Panel
@@ -54,7 +58,10 @@ def run_scan():
     # Step 1: Scrape + enrich descriptions
     console.print("[bold]Step 1/3:[/] Scraping job boards + fetching descriptions...")
     console.print("  [dim]Sources: LinkedIn, Jobright, Wellfound, MyVisaJobs, RemoteOK, SimplifyJobs[/dim]")
-    raw_jobs = scrape_all()
+    # Same wall-clock budget as the web scheduler, so a tarpitting host
+    # can't stall the CLI scan for hours either.
+    _scan_started = time.monotonic()
+    raw_jobs = scrape_all(deadline=_scan_started + SCAN_TIME_BUDGET_MINUTES * 60)
     console.print(f"  Found [bold]{len(raw_jobs)}[/] unique listings\n")
 
     # Step 2: Filter (role + seniority + H1B sponsorship)
@@ -73,7 +80,8 @@ def run_scan():
             new_count += 1
             new_jobs.append(job)
 
-    log_scan("all", "all_queries", len(raw_jobs), new_count)
+    log_scan("all", "all_queries", len(raw_jobs), new_count,
+             duration_seconds=round(time.monotonic() - _scan_started))
     console.print(f"  [bold green]{new_count}[/] new jobs added (out of {len(filtered_jobs)} filtered)")
 
     if new_jobs:
@@ -110,6 +118,34 @@ def export_csv():
     console.print(f"[bold green]Exported {len(jobs)} jobs to {output_path}[/]")
 
 
+def backfill_descriptions():
+    """Fetch descriptions for saved jobs that lack one, then re-check sponsorship.
+
+    Scans only enrich a handful of jobs each run, so most saved jobs have no
+    description — which hides OPT / start-date / clearance language.
+    """
+    jobs = get_jobs_missing_description()
+    console.print(f"[bold]Fetching descriptions for {len(jobs)} jobs...[/]")
+    fetched = newly_unlikely = 0
+    for i, job in enumerate(jobs, 1):
+        desc = fetch_description(job["url"])
+        if desc:
+            before = job["sponsorship_status"]
+            job["description"] = desc
+            job = check_sponsorship(job)
+            update_job_description(job["id"], desc, job)
+            fetched += 1
+            if job["sponsorship_status"] == "unlikely" and before != "unlikely":
+                newly_unlikely += 1
+        if i % 25 == 0:
+            logger.info(f"Backfill progress: {i}/{len(jobs)} checked, {fetched} fetched")
+        _short_delay()
+    console.print(
+        f"[bold green]Fetched {fetched}/{len(jobs)} descriptions[/] — "
+        f"{newly_unlikely} now flagged as not sponsoring"
+    )
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Job Hunter — Automated F1-friendly job search",
@@ -136,6 +172,10 @@ def main():
         "--mark-applied", type=str, metavar="JOB_ID",
         help="Mark a job as applied by its ID",
     )
+    parser.add_argument(
+        "--backfill-descriptions", action="store_true",
+        help="Fetch descriptions for saved jobs that don't have one",
+    )
 
     args = parser.parse_args()
 
@@ -156,6 +196,10 @@ def main():
 
     if args.export:
         export_csv()
+        return
+
+    if args.backfill_descriptions:
+        backfill_descriptions()
         return
 
     if args.mark_applied:

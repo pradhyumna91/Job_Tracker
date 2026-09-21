@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Hunter - {{ "Posted in last %d hours" % fresh_hours if active_page == "fresh" else "OPT & New Grad" }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+</head>
+<body>
+
+<header>
+    <div class="logo">
+        <h1>Job Hunter</h1>
+        <span>F1 Student | Full-Time Roles</span>
+    </div>
+    {% include "_nav.html" %}
+    <div class="header-actions">
+        <span class="last-scan" id="lastScan">Last scan: never</span>
+    </div>
+</header>
+
+<div class="page-intro">
+    {% if active_page == "fresh" %}
+    <h2>Companies that posted in the last {{ fresh_hours }} hours</h2>
+    <p>Full-time roles posted within the last {{ fresh_hours }} hours, grouped by company.
+       Roles that say they won't sponsor a visa are left out.</p>
+    {% else %}
+    <h2>Companies hiring recent grads on OPT</h2>
+    <p>Full-time roles posted more than {{ fresh_hours }} hours ago where the posting shows it hires
+       <strong>recent graduates</strong> and the company <strong>considers international students</strong>
+       (mentions OPT, CPT, F-1 or visa sponsorship, or is a known H-1B sponsor).
+       Roles that need a security clearance or citizenship are left out, and so are roles that
+       start before <strong id="earliestStart"></strong>.</p>
+    {% endif %}
+</div>
+
+<div class="stats">
+    <div class="stat-card info">
+        <div class="number" id="statCompanies">--</div>
+        <div class="label">Companies</div>
+    </div>
+    <div class="stat-card highlight">
+        <div class="number" id="statRoles">--</div>
+        <div class="label">Full-Time Roles</div>
+    </div>
+    <div class="stat-card">
+        <div class="number" id="statSponsors" style="color: #64ffda;">--</div>
+        <div class="label">H-1B Sponsor Companies</div>
+    </div>
+    <div class="stat-card warning">
+        <div class="number" id="statExplicit">--</div>
+        {% if active_page == "fresh" %}
+        <div class="label">New Grad Roles</div>
+        {% else %}
+        <div class="label">Roles Mentioning OPT / F-1</div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="toolbar">
+    <div class="filters">
+        {% if active_page == "opt" %}
+        <select id="maxAge" title="Posting age">
+            <option value="0">Any posting age</option>
+            <option value="7">Posted in last 7 days</option>
+            <option value="30">Posted in last 30 days</option>
+            <option value="90">Posted in last 90 days</option>
+        </select>
+        <label class="check"><input type="checkbox" id="includeEarly"> Include roles starting earlier</label>
+        <label class="check"><input type="checkbox" id="explicitOnly"> Only postings that mention OPT / F-1 / international students</label>
+        {% else %}
+        <label class="check"><input type="checkbox" id="sponsorOnly"> Only H-1B sponsor companies</label>
+        <label class="check"><input type="checkbox" id="gradOnly"> Only new-grad roles</label>
+        {% endif %}
+    </div>
+    <div class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Search company, title, location...">
+    </div>
+</div>
+
+<div class="hidden-note" id="hiddenNote"></div>
+<div class="company-list" id="companyList"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+    const VIEW = "{{ active_page }}";
+    const EXPLICIT_INTL = ["mentions OPT", "mentions CPT", "F-1 students welcome", "international students"];
+    const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    let data = null;
+    let lastScanSeen = null;
+
+    function escHtml(s) {
+        const d = document.createElement("div");
+        d.textContent = s == null ? "" : String(s);
+        return d.innerHTML;
+    }
+
+    function fmtMonth(ym) {
+        const [y, m] = ym.split("-");
+        return `${MONTHS[parseInt(m, 10) - 1]} ${y}`;
+    }
+
+    function postedLabel(iso) {
+        if (!iso) return "Posting date unknown";
+        const d = new Date(iso);
+        const hours = (Date.now() - d.getTime()) / 36e5;
+        if (hours < 1) return "Posted just now";
+        if (hours < 24) return `Posted ${Math.floor(hours)}h ago`;
+        const days = Math.floor(hours / 24);
+        if (days < 7) return `Posted ${days}d ago`;
+        return "Posted " + d.toLocaleDateString([], { month: "short", day: "numeric",
+            year: d.getFullYear() === new Date().getFullYear() ? undefined : "numeric" });
+    }
+
+    function chips(list, cls) {
+        return list.map(x => `<span class="chip ${cls}">${escHtml(x)}</span>`).join("");
+    }
+
+    async function load() {
+        const params = new URLSearchParams({ view: VIEW });
+        if (VIEW === "opt") {
+            params.set("max_age_days", document.getElementById("maxAge").value);
+            if (document.getElementById("includeEarly").checked) params.set("include_early", "1");
+        }
+        const resp = await fetch(`/api/companies?${params}`);
+        data = await resp.json();
+        render();
+    }
+
+    function visibleCompanies() {
+        const q = document.getElementById("searchInput").value.trim().toLowerCase();
+        const sponsorOnly = VIEW === "fresh" && document.getElementById("sponsorOnly").checked;
+        const gradOnly = VIEW === "fresh" && document.getElementById("gradOnly").checked;
+        const explicitOnly = VIEW === "opt" && document.getElementById("explicitOnly").checked;
+
+        return data.companies.map(c => {
+            const roles = c.roles.filter(r => {
+                if (sponsorOnly && !r.is_h1b_sponsor) return false;
+                if (gradOnly && !r.signals.grad.length) return false;
+                if (explicitOnly && !r.signals.intl.some(s => EXPLICIT_INTL.includes(s))) return false;
+                if (!q) return true;
+                return [c.company, r.title, r.location].some(v => (v || "").toLowerCase().includes(q));
+            });
+            return { ...c, roles };
+        }).filter(c => c.roles.length);
+    }
+
+    function render() {
+        const companies = visibleCompanies();
+        const roles = companies.flatMap(c => c.roles);
+
+        document.getElementById("statCompanies").textContent = companies.length;
+        document.getElementById("statRoles").textContent = roles.length;
+        document.getElementById("statSponsors").textContent = companies.filter(c => c.sponsors_h1b).length;
+        document.getElementById("statExplicit").textContent = VIEW === "fresh"
+            ? roles.filter(r => r.signals.grad.length).length
+            : roles.filter(r => r.signals.intl.some(s => EXPLICIT_INTL.includes(s))).length;
+
+        renderHiddenNote();
+
+        const list = document.getElementById("companyList");
+        if (!companies.length) {
+            list.innerHTML = `<div class="empty"><h3>No matching companies</h3>
+                <p>${VIEW === "fresh"
+                    ? "Nothing posted in this window yet. The database refreshes every hour."
+                    : "Try widening the posting age or including earlier start dates."}</p></div>`;
+            return;
+        }
+
+        list.innerHTML = companies.map(c => {
+            const latest = c.roles[0].posted_at;
+            return `<section class="company-card">
+                <div class="company-head">
+                    <div>
+                        <h3>${escHtml(c.company)}</h3>
+                        <div class="meta">${c.roles.length} role${c.roles.length === 1 ? "" : "s"} · latest ${postedLabel(latest).toLowerCase()}</div>
+                    </div>
+                    <div class="chips">${c.sponsors_h1b ? '<span class="chip intl">H-1B sponsor</span>' : ""}</div>
+                </div>
+                ${c.roles.map(renderRole).join("")}
+            </section>`;
+        }).join("");
+    }
+
+    function renderRole(r) {
+        const title = r.url
+            ? `<a href="${escHtml(r.url)}" target="_blank" rel="noopener">${escHtml(r.title)}</a>`
+            : escHtml(r.title);
+        const s = r.signals;
+        let signalHtml = chips(s.grad, "grad") + chips(s.intl.filter(x => x !== "sponsors H-1B"), "intl");
+        if (VIEW === "opt" || s.start.month || s.start.early) {
+            signalHtml += `<span class="chip ${s.start.early ? "warn" : "start"}">${escHtml(s.start.label)}</span>`;
+        }
+        if (VIEW === "fresh" && s.blockers.length) signalHtml += chips(s.blockers.map(b => `mentions ${b}`), "warn");
+        if (!r.has_description) signalHtml += '<span class="chip">no description yet</span>';
+        if (VIEW === "fresh" && r.sponsorship_status === "unknown") signalHtml += '<span class="chip">sponsorship unknown</span>';
+
+        return `<div class="role">
+            <div>
+                <div class="title">${title}</div>
+                <div class="sub">${escHtml(r.location)} · ${postedLabel(r.posted_at)} · ${escHtml(r.source)}</div>
+                <div class="signals">${signalHtml}</div>
+            </div>
+            <div class="row-actions">
+                <button class="row-btn ${r.applied ? "applied" : ""}" onclick="markApplied('${r.id}', this)">
+                    ${r.applied ? "Applied" : "Mark Applied"}</button>
+            </div>
+        </div>`;
+    }
+
+    function renderHiddenNote() {
+        const h = data.hidden || {};
+        const parts = [];
+        if (h.not_sponsoring) parts.push(`${h.not_sponsoring} won't sponsor`);
+        if (VIEW === "opt") {
+            if (h.no_grad_signal) parts.push(`${h.no_grad_signal} show no recent-grad signal`);
+            if (h.no_intl_signal) parts.push(`${h.no_intl_signal} show no international / sponsorship signal`);
+            if (h.clearance_or_citizenship) parts.push(`${h.clearance_or_citizenship} need clearance or citizenship`);
+            if (h.starts_too_early) parts.push(`${h.starts_too_early} start before ${fmtMonth(data.earliest_start)}`);
+            if (h.too_old) parts.push(`${h.too_old} older than the selected age`);
+        }
+        document.getElementById("hiddenNote").textContent = parts.length ? `Hidden: ${parts.join(" · ")}` : "";
+    }
+
+    async function markApplied(jobId, el) {
+        await fetch("/api/mark", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: jobId, action: "applied" }),
+        });
+        el.textContent = "Applied";
+        el.classList.add("applied");
+        for (const c of data.companies) for (const r of c.roles) if (r.id === jobId) r.applied = true;
+        showToast("Marked as applied!");
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 4000);
+    }
+
+    // Reload when the hourly refresh brings in new data.
+    async function pollStats() {
+        const stats = await (await fetch("/api/stats")).json();
+        const el = document.getElementById("lastScan");
+        el.textContent = stats.last_scan
+            ? `Last scan: ${new Date(stats.last_scan).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}`
+              + (stats.scan_running ? "  |  scanning now..." : "")
+            : "Last scan: never";
+        if (lastScanSeen && stats.last_scan !== lastScanSeen) await load();
+        lastScanSeen = stats.last_scan;
+    }
+
+    // ---- Wire up ----
+    if (VIEW === "opt") {
+        document.getElementById("earliestStart").textContent = fmtMonth("{{ earliest_start }}");
+        document.getElementById("maxAge").addEventListener("change", load);
+        document.getElementById("includeEarly").addEventListener("change", load);
+        document.getElementById("explicitOnly").addEventListener("change", render);
+    } else {
+        document.getElementById("sponsorOnly").addEventListener("change", render);
+        document.getElementById("gradOnly").addEventListener("change", render);
+    }
+    let searchTimer;
+    document.getElementById("searchInput").addEventListener("input", () => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => data && render(), 200);
+    });
+
+    load();
+    pollStats();
+    setInterval(pollStats, 60000);
+</script>
+
+</body>
+</html>

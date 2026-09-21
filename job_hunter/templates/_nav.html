@@ -1,0 +1,5 @@
+<nav class="nav">
+    <a href="{{ url_for('index') }}" class="{{ 'active' if active_page == 'all' }}">All Jobs</a>
+    <a href="{{ url_for('fresh_page') }}" class="{{ 'active' if active_page == 'fresh' }}">Posted in last 48h</a>
+    <a href="{{ url_for('opt_page') }}" class="{{ 'active' if active_page == 'opt' }}">OPT &amp; New Grad</a>
+</nav>

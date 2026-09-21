@@ -4,6 +4,8 @@ import subprocess
 import platform
 import logging
 
+from config import ENABLE_DESKTOP_NOTIFICATION, ENABLE_SOUND
+
 logger = logging.getLogger("job_hunter.notifier")
 
 
@@ -13,7 +15,8 @@ def send_desktop_notification(title: str, message: str):
     try:
         if system == "Darwin":
             # macOS native notification
-            script = f'display notification "{message}" with title "{title}" sound name "Glass"'
+            sound = ' sound name "Glass"' if ENABLE_SOUND else ""
+            script = f'display notification "{message}" with title "{title}"{sound}'
             subprocess.run(["osascript", "-e", script], check=True, timeout=5)
         elif system == "Linux":
             subprocess.run(["notify-send", title, message], check=True, timeout=5)
@@ -25,7 +28,7 @@ def send_desktop_notification(title: str, message: str):
 
 def notify_new_jobs(new_jobs: list[dict]):
     """Send notifications for newly discovered jobs."""
-    if not new_jobs:
+    if not new_jobs or not ENABLE_DESKTOP_NOTIFICATION:
         return
 
     count = len(new_jobs)

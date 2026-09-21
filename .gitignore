@@ -1,0 +1,18 @@
+# Virtualenv / Python
+job_hunter/.venv/
+__pycache__/
+*.pyc
+
+# Regenerable local data
+job_hunter/cache/
+job_hunter/logs/
+
+# Database backups and exports
+job_hunter/jobs.db.bak-*
+job_hunter/jobs_export_*.csv
+
+# Notebooks
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
